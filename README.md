@@ -25,7 +25,7 @@ npm ci
 cp ./.env-template ./.env
 ```
 4. Umgebungsvariablen festlegen
-   (Datei .env editieren und die jeweiligen [Parameter](##parameter) festlegen)
+   (Datei .env editieren und die jeweiligen [Parameter](#parameter) festlegen)
 5. Ausführen
 ```
 node ./start.js
@@ -39,7 +39,7 @@ bzw. einen **Cron-Job** einrichten, der die Ausführung regelmäßig (bswp. stü
 Gibt die Adresse der Sag's-uns-einfach-Instanz an. Jede Kommune, die teilnimmt, hat eine eigene Adresse.
 Beispiel für Magdeburg: `https://include-st.zfinder.de/mobileportalpms/286585400`
 
-Die folgenden Kommunen nehmen derzeit (Stand Nov. 2021) teil:
+Die folgenden Kommunen nehmen derzeit (Quelle: [https://sagsunseinfach.de](https://sagsunseinfach.de), Stand Nov. 2021) teil:
 Name | Url
 -----|-----
 Stadt Gifhorn | https://include-ni.zfinder.de/mobileportalpms/314181900
