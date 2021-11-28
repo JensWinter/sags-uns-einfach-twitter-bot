@@ -1,0 +1,16 @@
+{
+  "name": "sags-uns-einfach-twitter-bot",
+  "version": "1.0.0",
+  "description": "Twitter-Bot für \"Sag's uns einfach\"-Meldungen",
+  "scripts": {
+    "start": "node start.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jens Winter",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "proj4": "^2.7.5",
+    "twitter-api-client": "^1.4.0"
+  }
+}
