@@ -19,6 +19,7 @@ const TWITTER_API_SECRET = process.env.TWITTER_API_SECRET;
 const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN;
 const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 
+const ARCHIVE_MESSAGES = process.env.ARCHIVE_MESSAGES === 'true';
 const DO_THE_TWEETS = process.env.DO_THE_TWEETS === 'true';
 
 const LOG_TO_SLACK_CHANNEL = process.env.LOG_TO_SLACK_CHANNEL === 'true';
@@ -78,6 +79,11 @@ function checkAndProcessNewMessages() {
             // Append all new messages to messages file
             saveNewMessages(pastMessages, newMessages);
 
+            // Save messages in archive directory
+            if (ARCHIVE_MESSAGES) {
+                archiveNewMessages(newMessages);
+            }
+
             // Log new messages, in case there were any
             if (newMessages.length > 0) {
                 logNewMessages(newMessages)
@@ -112,6 +118,23 @@ function saveNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
     fs.writeFileSync('./messages.json', strMessages);
+}
+
+
+function archiveNewMessages(messages) {
+
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
+    const day = `${now.getUTCDate()}`.padStart(2, '0');
+    const hour = `${now.getUTCHours()}`.padStart(2, '0');
+    const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
+    const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
+
+    const filename = `${year}-${month}-${day}T${hour}:${minutes}:${seconds}Z-messages.json`;
+    const strMessages = JSON.stringify(messages, null, 2);
+    fs.writeFileSync(`./archive/${filename}`, strMessages);
+
 }
 
 
