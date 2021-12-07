@@ -58,7 +58,7 @@ function checkAndProcessNewMessages() {
     const req = https.get(`${BASE_URL}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, (res) => {
 
         if (res.statusCode !== 200) {
-            logFailedFetch(res.statusMessage);
+            logFailedDataFetch(res.statusMessage);
             return;
         }
 
@@ -97,8 +97,7 @@ function checkAndProcessNewMessages() {
         });
 
     });
-
-    req.on('error', e => logFailedFetch(e.message));
+    req.on('error', e => logFailedDataFetch(e.message));
     req.end();
 
 }
@@ -192,7 +191,7 @@ ${url}`;
 }
 
 
-function logFailedFetch(errorMessage) {
+function logFailedDataFetch(errorMessage) {
     const text = `Fetching data failed: ${errorMessage}`;
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
