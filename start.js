@@ -214,7 +214,7 @@ function archiveNewMessages(messages) {
     const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
     const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
 
-    const filename = `${year}-${month}-${day}T${hour}:${minutes}:${seconds}Z-messages.json`;
+    const filename = `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z-messages.json`;
     const strMessages = JSON.stringify(messages, null, 2);
     fs.writeFileSync(`./archive/${filename}`, strMessages);
 
