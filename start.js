@@ -206,6 +206,10 @@ async function uploadImage(imageDataBuffer) {
 
 function archiveNewMessages(messages) {
 
+    if (messages.length === 0) {
+        return;
+    }
+
     const now = new Date();
     const year = now.getUTCFullYear();
     const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
