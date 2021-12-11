@@ -21,6 +21,7 @@ const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET;
 
 const ARCHIVE_MESSAGES = process.env.ARCHIVE_MESSAGES === 'true';
 const DO_THE_TWEETS = process.env.DO_THE_TWEETS === 'true';
+const TWEET_WITH_IMAGE = process.env.TWEET_WITH_IMAGE === 'true';
 
 const LOG_TO_SLACK_CHANNEL = process.env.LOG_TO_SLACK_CHANNEL === 'true';
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -120,6 +121,89 @@ function saveNewMessages(pastMessages, newMessages) {
 }
 
 
+function fetchMessageDetails(message) {
+
+    return new Promise((resolve, reject) => {
+
+        const req = https.get(`${BASE_URL}?format=json&action=detail&id=${message.id}`, res => {
+
+            if (res.statusCode !== 200) {
+                return reject(res.statusMessage);
+            }
+
+            let body = '';
+
+            res.on('data', d => body += d);
+            res.on('end', () => {
+
+                // Get the messages that are currently available
+                const messageDetails = JSON.parse(body);
+                if (messageDetails && messageDetails.length > 0) {
+                    return resolve(messageDetails[0]);
+                }
+
+                return reject(`No details for message "${message.id}"`);
+
+            });
+
+        });
+        req.on('error', e => reject(e.message));
+        req.end();
+
+    });
+
+}
+
+
+function fetchImage(messageDetails) {
+
+    return new Promise((resolve, reject) => {
+
+        const imageId = messageDetails.messageImage.id;
+        const req = https.get(`https://include-st.zfinder.de/IWImageLoader?mediaId=${imageId}`, (res) => {
+
+            if (res.statusCode !== 200) {
+                return reject(res.statusMessage);
+            }
+
+            const imageData = [];
+
+            res.on('data', d => imageData.push(d));
+            res.on('end', () => resolve(Buffer.concat(imageData)));
+
+        });
+        req.on('error', () => reject(e.message));
+        req.end();
+
+    });
+
+}
+
+
+function saveImage(messageDetails, imageDataBuffer) {
+    const mimeType = messageDetails.messageImage.mimeType;
+    const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
+    const filename = `./archive/images/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    fs.writeFileSync(filename, imageDataBuffer);
+}
+
+
+async function uploadImage(imageDataBuffer) {
+
+    return new Promise((resolve, reject) => {
+
+        const base64 = imageDataBuffer.toString('base64');
+        const uploadParams = { media_data: base64 };
+        twitterClient.media
+            .mediaUpload(uploadParams)
+            .then(uploadResult => resolve(uploadResult.media_id_string))
+            .catch(reject);
+
+    });
+
+}
+
+
 function archiveNewMessages(messages) {
 
     const now = new Date();
@@ -144,7 +228,7 @@ function tweetNewestMessages(messages) {
         .slice(0, MAX_TWEETS_PER_RUN)
         .reverse();
 
-    tweetQueue.forEach(delay(sendTweet, TWEET_DELAY_SECONDS * 1000))
+    tweetQueue.forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000))
 
 }
 
@@ -154,12 +238,12 @@ function delay(fn, delay) {
 }
 
 
-function sendTweet(message) {
+async function processMessage(message) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
     const url = `${BASE_URL}#meldungDetail?id=${message.id}`;
-    const status = `Meldung vom ${date}:
+    let status = `Meldung vom ${date}:
     
 ${message.subject}
 ${url}`;
@@ -182,17 +266,117 @@ ${url}`;
 
     }
 
-    const parameters = display_coordinates ? { status, display_coordinates, lat, long } : { status };
-    twitterClient.tweets
-        .statusesUpdate(parameters)
+    let messageDetails = null;
+    try {
+        messageDetails = await fetchMessageDetails(message);
+    } catch (e) {
+        return logFailedDetailsFetch(e);
+    }
+
+    if (messageDetails.messageImage) {
+
+        let imageData = null;
+        try {
+            imageData = await fetchImage(messageDetails);
+        } catch (e) {
+            return logFailedImageFetch(e);
+        }
+
+        try {
+            await saveImage(messageDetails, imageData);
+        } catch (e) {
+            return logFailedImageSave(e);
+        }
+
+        let mediaId = null;
+        if (TWEET_WITH_IMAGE) {
+
+            try {
+                mediaId = await uploadImage(imageData);
+            } catch (e) {
+                return logFailedTweet(e);
+            }
+
+            status += `
+Bild: LH Magdeburg`;
+
+        }
+
+        try {
+            await sendTweet(status, display_coordinates, lat, long, mediaId);
+        } catch(e) {
+            return logFailedTweet(e);
+        }
+
+    } else {
+        sendTweet(status, display_coordinates, lat, long, null)
         .then(console.info)
         .catch(logFailedTweet);
+    }
+
+}
+
+
+function sendTweet(status, display_coordinates, lat, long, mediaId) {
+
+    const parameters = display_coordinates
+        ? { status, display_coordinates, lat, long, media_ids: mediaId }
+        : { status, media_ids: mediaId };
+    return twitterClient.tweets.statusesUpdate(parameters);
+
+/*
+    const parameters = {
+        event: {
+            type: 'message_create',
+            message_create: {
+                target: { recipient_id: '15928605' },
+                message_data: {
+                    text: status,
+                    attachment: !!mediaId
+                        ? { type: 'media', media: { id: mediaId } }
+                        : null
+                }
+            }
+        }
+    };
+    return twitterClient.directMessages.eventsNew(parameters);
+*/
 
 }
 
 
 function logFailedDataFetch(errorMessage) {
     const text = `Fetching data failed: ${errorMessage}`;
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    } else {
+        console.error(text);
+    }
+}
+
+
+function logFailedDetailsFetch(errorMessage) {
+    const text = `Fetching details failed: ${errorMessage}`;
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    } else {
+        console.error(text);
+    }
+}
+
+
+function logFailedImageFetch(errorMessage) {
+    const text = `Fetching image failed: ${errorMessage}`;
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    } else {
+        console.error(text);
+    }
+}
+
+
+function logFailedImageSave(errorMessage) {
+    const text = `Saving image failed: ${errorMessage}`;
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     } else {
