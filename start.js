@@ -318,30 +318,10 @@ Bild: LH Magdeburg`;
 
 
 function sendTweet(status, display_coordinates, lat, long, mediaId) {
-
     const parameters = display_coordinates
         ? { status, display_coordinates, lat, long, media_ids: mediaId }
         : { status, media_ids: mediaId };
     return twitterClient.tweets.statusesUpdate(parameters);
-
-/*
-    const parameters = {
-        event: {
-            type: 'message_create',
-            message_create: {
-                target: { recipient_id: '15928605' },
-                message_data: {
-                    text: status,
-                    attachment: !!mediaId
-                        ? { type: 'media', media: { id: mediaId } }
-                        : null
-                }
-            }
-        }
-    };
-    return twitterClient.directMessages.eventsNew(parameters);
-*/
-
 }
 
 
