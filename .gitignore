@@ -120,3 +120,6 @@ dist
 .idea/
 
 /archive/*.json
+
+config.development.json
+config.production.json
