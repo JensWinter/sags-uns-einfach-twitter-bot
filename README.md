@@ -20,22 +20,22 @@ cd sags-uns-einfach-twitter-bot
 ```
 npm ci
 ```
-3. .env-Datei erstellen
+3. config-Datei erstellen
 ```
-cp ./.env-template ./.env
+cp ./.config.template.json ./config.json
 ```
-4. Umgebungsvariablen festlegen
-   (Datei .env editieren und die jeweiligen [Parameter](#parameter) festlegen)
+4. Konfiguration festlegen
+   (Datei config.json editieren und die jeweiligen [Parameter](#parameter) festlegen)
 5. Ausführen
 ```
-node ./start.js
+node ./start.js -c config.json
 ```
 
-bzw. einen **Cron-Job** einrichten, der die Ausführung regelmäßig (bswp. stündlich) startet.
+bzw. einen **Cron-Job** einrichten, der die Ausführung regelmäßig (bspw. stündlich) startet.
 
-## Parameter
+## Konfigurationsparameter
 
-### BASE_URL
+### baseUrl
 Gibt die Adresse der Sag's-uns-einfach-Instanz an. Jede Kommune, die teilnimmt, hat eine eigene Adresse.
 Beispiel für Magdeburg: `https://include-st.zfinder.de/mobileportalpms/286585400`
 
@@ -115,32 +115,38 @@ Stadt Grünberg | https://include-he.zfinder.de/mobileportalpms/374537072/
 Gemeinde Huy | https://include-st.zfinder.de/mobileportalpms/393598852/
 
 
-### LIMIT_MESSAGES_SYNC
+### limitMessagesSync
 Anzahl der Meldungen, die pro Durchlauf geholt werden soll.
 
-### TWEET_DELAY_SECONDS
+### tweetDelaySeconds
 Zeit, die zwischen einzelnen Tweets mindestens vergehen soll.
 
-### MAX_TWEETS_PER_RUN
+### maxTweetsPerRun
 Maximale Anzahl von Tweets, die pro Durchlauf höchstens entstehen sollen. Sollten mehr Meldungen verfügbar sein, so werden nur Tweets für die neuesten Meldungen erzeugt.
 
-### TWITTER_API_KEY
+### twitter.apiKey
 Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen.
 
-### TWITTER_API_SECRET
+### twitter.apiSecret
 Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen.
 
-### TWITTER_ACCESS_TOKEN
+### twitter.accesstoken
 Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen.
 
-### TWITTER_ACCESS_TOKEN_SECRET
+### twitter.accessTokenSecret
 Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen.
 
-### DO_THE_TWEETS
+### archiveMessages
+Falls `true`, werden neue Nachrichten als JSON-Dateien im archive-Unterordner abgespeichert.
+
+### tweetMessages
 Muss auf `true` gesetzt werden, damit Tweets erzeugt werden. Mit diesem Flag ist es möglich, das Erzeugen von Tweets zu deaktivieren.
 
-### LOG_TO_SLACK_CHANNEL
+### tweetWithImage
+Wenn dieser Wert auf `true` gesetzt ist, wird - sofern vorhanden - das zur Meldung gehörende Bild im Tweet eingebettet.
+
+### logToSlackChannel
 Auf `true` setzen, damit Fehler-Benachrichtung und andere Benachrichtigungen in einen Slack-Kanal gepostet werden. Setzt voraus, dass der Parameter [SLACK_WEBHOOK_URL](###slack-webhook-url) korrekt gesetzt ist.
 
-### SLACK_WEBHOOK_URL
+### slackWebhookUrl
 Webhook-Adresse zum Posten von Benachrichtigungen in einen bestimmten Slack-Kanal.
