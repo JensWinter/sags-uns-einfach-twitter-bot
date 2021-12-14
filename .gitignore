@@ -119,7 +119,10 @@ dist
 
 .idea/
 
-/archive/*.json
+messages.json
+archive/*.json
+archive/images/*.jpeg
+archive/images/*.png
 
 config.development.json
 config.production.json
