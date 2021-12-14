@@ -6,32 +6,43 @@ const fs = require('fs');
 const TwitterClient = require('twitter-api-client').TwitterClient;
 const proj4 = require('proj4');
 
-require('dotenv').config();
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+const argv = yargs(hideBin(process.argv))
+    .options({
+        'h': {
+            alias: 'help'
+        },
+        'c': {
+            alias: 'config',
+            demandOption: true,
+            type: 'string',
+        }
+    })
+    .coerce('config', arg => JSON.parse(fs.readFileSync(arg, 'utf8')))
+    .version()
+    .argv;
 
+const { config } = argv;
 
-const BASE_URL = process.env.BASE_URL;
-const LIMIT_MESSAGES_SYNC = process.env.LIMIT_MESSAGES_SYNC;
-const TWEET_DELAY_SECONDS = process.env.TWEET_DELAY_SECONDS;
-const MAX_TWEETS_PER_RUN = process.env.MAX_TWEETS_PER_RUN;
+const BASE_URL = config.baseUrl;
+const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
+const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
+const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
 
-const TWITTER_API_KEY = process.env.TWITTER_API_KEY;
-const TWITTER_API_SECRET = process.env.TWITTER_API_SECRET;
-const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN;
-const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+const ARCHIVE_MESSAGES = config.archiveMessages;
+const DO_THE_TWEETS = config.tweetMessages;
+const TWEET_WITH_IMAGE = config.tweetWithImage;
 
-const ARCHIVE_MESSAGES = process.env.ARCHIVE_MESSAGES === 'true';
-const DO_THE_TWEETS = process.env.DO_THE_TWEETS === 'true';
-const TWEET_WITH_IMAGE = process.env.TWEET_WITH_IMAGE === 'true';
-
-const LOG_TO_SLACK_CHANNEL = process.env.LOG_TO_SLACK_CHANNEL === 'true';
-const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
+const SLACK_WEBHOOK_URL = config.slackWebhookUrl;
 
 
 const twitterClient = new TwitterClient({
-    apiKey: TWITTER_API_KEY,
-    apiSecret: TWITTER_API_SECRET,
-    accessToken: TWITTER_ACCESS_TOKEN,
-    accessTokenSecret: TWITTER_ACCESS_TOKEN_SECRET,
+    apiKey: config.twitter.apiKey,
+    apiSecret: config.twitter.apiSecret,
+    accessToken: config.twitter.accessToken,
+    accessTokenSecret: config.twitter.accessTokenSecret
 });
 
 
@@ -56,7 +67,7 @@ function setupMessagesFileIfItDoesNotExists() {
 
 function checkAndProcessNewMessages() {
 
-    const req = https.get(`${BASE_URL}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, (res) => {
+    const req = https.get(`${BASE_URL}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, res => {
 
         if (res.statusCode !== 200) {
             logFailedDataFetch(res.statusMessage);
@@ -192,6 +203,7 @@ async function uploadImage(imageDataBuffer) {
 
     return new Promise((resolve, reject) => {
 
+        // noinspection JSCheckFunctionSignatures
         const base64 = imageDataBuffer.toString('base64');
         const uploadParams = { media_data: base64 };
         twitterClient.media
