@@ -26,6 +26,8 @@ const argv = yargs(hideBin(process.argv))
 const { config } = argv;
 
 const BASE_URL = config.baseUrl;
+const tenantId = config.tenantId;
+const messagesFilename = `./messages-${tenantId}.json`;
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
@@ -59,8 +61,8 @@ checkAndProcessNewMessages();
 
 
 function setupMessagesFileIfItDoesNotExists() {
-    if (!fs.existsSync('./messages.json')) {
-        fs.copyFileSync('./messages-template.json', './messages.json');
+    if (!fs.existsSync(messagesFilename)) {
+        fs.copyFileSync('./messages-template.json', messagesFilename);
     }
 }
 
@@ -116,7 +118,7 @@ function checkAndProcessNewMessages() {
 
 
 function loadPastMessages() {
-    return JSON.parse(fs.readFileSync('./messages.json', 'utf-8'));
+    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8'));
 }
 
 
@@ -128,7 +130,7 @@ function findNewMessages(currentMessages, pastMessages) {
 function saveNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
-    fs.writeFileSync('./messages.json', strMessages);
+    fs.writeFileSync(messagesFilename, strMessages);
 }
 
 

@@ -120,6 +120,7 @@ dist
 .idea/
 
 messages.json
+messages-*.json
 archive/*.json
 archive/images/*.jpeg
 archive/images/*.png
