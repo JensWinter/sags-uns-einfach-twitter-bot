@@ -25,8 +25,9 @@ const argv = yargs(hideBin(process.argv))
 
 const { config } = argv;
 
-const BASE_URL = config.baseUrl;
 const tenantId = config.tenantId;
+const baseUrl = config.baseUrl;
+const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
 const messagesFilename = `./messages-${tenantId}.json`;
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
@@ -69,7 +70,7 @@ function setupMessagesFileIfItDoesNotExists() {
 
 function checkAndProcessNewMessages() {
 
-    const req = https.get(`${BASE_URL}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, res => {
+    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, res => {
 
         if (res.statusCode !== 200) {
             logFailedDataFetch(res.statusMessage);
@@ -138,7 +139,7 @@ function fetchMessageDetails(message) {
 
     return new Promise((resolve, reject) => {
 
-        const req = https.get(`${BASE_URL}?format=json&action=detail&id=${message.id}`, res => {
+        const req = https.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`, res => {
 
             if (res.statusCode !== 200) {
                 return reject(res.statusMessage);
@@ -173,7 +174,7 @@ function fetchImage(messageDetails) {
     return new Promise((resolve, reject) => {
 
         const imageId = messageDetails.messageImage.id;
-        const req = https.get(`https://include-st.zfinder.de/IWImageLoader?mediaId=${imageId}`, (res) => {
+        const req = https.get(`${baseUrl}/IWImageLoader?mediaId=${imageId}`, (res) => {
 
             if (res.statusCode !== 200) {
                 return reject(res.statusMessage);
@@ -260,7 +261,7 @@ async function processMessage(message) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const url = `${BASE_URL}#meldungDetail?id=${message.id}`;
+    const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
     let status = `Meldung vom ${date}:
     
 ${message.subject}

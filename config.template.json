@@ -1,6 +1,6 @@
 {
-  "baseUrl": "https://include-st.zfinder.de/mobileportalpms/286585400",
   "tenantId": "286585400",
+  "baseUrl": "https://include-st.zfinder.de",
   "limitMessagesSync": 500,
   "tweetDelaySeconds": 30,
   "maxTweetsPerRun": 5,
