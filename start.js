@@ -32,24 +32,15 @@ const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
 const messagesFilename = `./messages-${tenantId}.json`;
 const archiveDir = `./archives/archive-${tenantId}`;
 const imagesArchiveDir = `./archives/archive-${tenantId}/images`;
+
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
-
-const ARCHIVE_MESSAGES = config.archiveMessages;
-const DO_THE_TWEETS = config.tweetMessages;
 const TWEET_WITH_IMAGE = config.tweetWithImage;
-
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = config.slackWebhookUrl;
 
-
-const twitterClient = new TwitterClient({
-    apiKey: config.twitter.apiKey,
-    apiSecret: config.twitter.apiSecret,
-    accessToken: config.twitter.accessToken,
-    accessTokenSecret: config.twitter.accessTokenSecret
-});
+const DATETIME_PREFIX = createDateTimePrefix();
 
 
 proj4.defs([
@@ -62,6 +53,18 @@ setupMessagesFileIfItDoesNotExists();
 
 
 checkAndProcessNewMessages();
+
+
+function createDateTimePrefix() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
+    const day = `${now.getUTCDate()}`.padStart(2, '0');
+    const hour = `${now.getUTCHours()}`.padStart(2, '0');
+    const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
+    const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
+    return `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z`;
+}
 
 
 function setupMessagesFileIfItDoesNotExists() {
@@ -100,23 +103,7 @@ function checkAndProcessNewMessages() {
             // Check for messages we haven't seen yet
             const newMessages = findNewMessages(currentMessages, pastMessages);
 
-            // Append all new messages to messages file
-            saveNewMessages(pastMessages, newMessages);
-
-            // Save messages in archive directory
-            if (ARCHIVE_MESSAGES) {
-                archiveNewMessages(newMessages);
-            }
-
-            // Log new messages, in case there were any
-            if (newMessages.length > 0) {
-                logNewMessages(newMessages)
-            }
-
-            // Tweet some of the new messages
-            if (DO_THE_TWEETS) {
-                tweetNewestMessages(newMessages)
-            }
+            processNewMessages(pastMessages, newMessages);
 
         });
 
@@ -137,14 +124,130 @@ function findNewMessages(currentMessages, pastMessages) {
 }
 
 
-function saveNewMessages(pastMessages, newMessages) {
+function processNewMessages(pastMessages, newMessages) {
+    if (newMessages.length > 0) {
+        logNewMessages(newMessages)
+        recordNewMessages(pastMessages, newMessages);
+        archiveNewMessages(newMessages);
+        enqueueAndProcessMessages(newMessages)
+    }
+}
+
+
+function recordNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
     fs.writeFileSync(messagesFilename, strMessages);
 }
 
 
-function fetchMessageDetails(message) {
+function archiveNewMessages(messages) {
+    const filename = `${DATETIME_PREFIX}-messages.json`;
+    const strMessages = JSON.stringify(messages, null, 2);
+    fs.writeFileSync(`${archiveDir}/${filename}`, strMessages);
+}
+
+
+function enqueueAndProcessMessages(messages) {
+    messages
+        .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
+        .reverse()
+        .forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000));
+}
+
+
+function delay(fn, delay) {
+    return (message, i) => {
+        const sendTweet = i < MAX_TWEETS_PER_RUN;
+        setTimeout(() => fn(message, sendTweet), i * delay);
+    };
+}
+
+
+async function processMessage(message, doSendTweet) {
+
+    let messageDetails = null;
+    try {
+        messageDetails = await fetchMessageDetails(message);
+    } catch (e) {
+        return logFailedDetailsFetch(e);
+    }
+
+    archiveMessageDetails(messageDetails);
+
+    let imageData = null;
+    if (messageDetails.messageImage) {
+
+        try {
+            imageData = await fetchImage(messageDetails);
+        } catch (e) {
+            return logFailedImageFetch(e);
+        }
+
+        try {
+            await saveImage(messageDetails, imageData);
+        } catch (e) {
+            return logFailedImageSave(e);
+        }
+
+    }
+
+    if (doSendTweet) {
+
+        const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
+        const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
+        let status = `Meldung vom ${date}:
+    
+${message.subject}
+${url}`;
+
+        const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
+        const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
+        let lat = null;
+        let long = null;
+        if (display_coordinates) {
+            const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
+            if (coordinateSystem === 'EPSG:25832') {
+                const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
+                lat = destinationCoord[1];
+                long = destinationCoord[0];
+            } else {
+                lat = message.messagePosition.geoCoding.latitude;
+                long = message.messagePosition.geoCoding.longitude;
+            }
+        }
+
+        if (TWEET_WITH_IMAGE && imageData) {
+
+            let mediaId = null;
+            try {
+                mediaId = await uploadImage(imageData);
+            } catch (e) {
+                return logFailedTweet(e);
+            }
+
+            status += `
+Bild: LH Magdeburg`;
+
+            try {
+                await sendTweet(status, display_coordinates, lat, long, mediaId);
+            } catch(e) {
+                return logFailedTweet(e);
+            }
+
+        } else {
+            sendTweet(status, display_coordinates, lat, long, null)
+                .then(console.info)
+                .catch(logFailedTweet);
+        }
+
+    }
+
+}
+
+
+async function fetchMessageDetails(message) {
 
     return new Promise((resolve, reject) => {
 
@@ -178,7 +281,14 @@ function fetchMessageDetails(message) {
 }
 
 
-function fetchImage(messageDetails) {
+function archiveMessageDetails(message) {
+    const filename = `${DATETIME_PREFIX}-message-${message.id}.json`;
+    const strMessage = JSON.stringify(message, null, 2);
+    fs.writeFileSync(`${archiveDir}/${filename}`, strMessage);
+}
+
+
+async function fetchImage(messageDetails) {
 
     return new Promise((resolve, reject) => {
 
@@ -228,128 +338,21 @@ async function uploadImage(imageDataBuffer) {
 }
 
 
-function archiveNewMessages(messages) {
-
-    if (messages.length === 0) {
-        return;
-    }
-
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
-    const day = `${now.getUTCDate()}`.padStart(2, '0');
-    const hour = `${now.getUTCHours()}`.padStart(2, '0');
-    const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
-    const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
-
-    const filename = `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z-messages.json`;
-    const strMessages = JSON.stringify(messages, null, 2);
-    fs.writeFileSync(`${archiveDir}/${filename}`, strMessages);
-
-}
-
-
-function tweetNewestMessages(messages) {
-
-    const tweetQueue = messages
-        .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
-        .slice(0, MAX_TWEETS_PER_RUN)
-        .reverse();
-
-    tweetQueue.forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000))
-
-}
-
-
-function delay(fn, delay) {
-    return (name, i) => setTimeout(() => fn(name), i * delay);
-}
-
-
-async function processMessage(message) {
-
-    const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
-    let status = `Meldung vom ${date}:
-    
-${message.subject}
-${url}`;
-
-    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-    let lat = null;
-    let long = null;
-    if (display_coordinates) {
-
-        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-        if (coordinateSystem === 'EPSG:25832') {
-            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-            lat = destinationCoord[1];
-            long = destinationCoord[0];
-        } else {
-            lat = message.messagePosition.geoCoding.latitude;
-            long = message.messagePosition.geoCoding.longitude;
-        }
-
-    }
-
-    let messageDetails = null;
-    try {
-        messageDetails = await fetchMessageDetails(message);
-    } catch (e) {
-        return logFailedDetailsFetch(e);
-    }
-
-    if (messageDetails.messageImage) {
-
-        let imageData = null;
-        try {
-            imageData = await fetchImage(messageDetails);
-        } catch (e) {
-            return logFailedImageFetch(e);
-        }
-
-        try {
-            await saveImage(messageDetails, imageData);
-        } catch (e) {
-            return logFailedImageSave(e);
-        }
-
-        let mediaId = null;
-        if (TWEET_WITH_IMAGE) {
-
-            try {
-                mediaId = await uploadImage(imageData);
-            } catch (e) {
-                return logFailedTweet(e);
-            }
-
-            status += `
-Bild: LH Magdeburg`;
-
-        }
-
-        try {
-            await sendTweet(status, display_coordinates, lat, long, mediaId);
-        } catch(e) {
-            return logFailedTweet(e);
-        }
-
-    } else {
-        sendTweet(status, display_coordinates, lat, long, null)
-        .then(console.info)
-        .catch(logFailedTweet);
-    }
-
-}
-
-
 function sendTweet(status, display_coordinates, lat, long, mediaId) {
+
+    const twitterClient = new TwitterClient({
+        apiKey: config.twitter.apiKey,
+        apiSecret: config.twitter.apiSecret,
+        accessToken: config.twitter.accessToken,
+        accessTokenSecret: config.twitter.accessTokenSecret
+    });
+
     const parameters = display_coordinates
         ? { status, display_coordinates, lat, long, media_ids: mediaId }
         : { status, media_ids: mediaId };
+
     return twitterClient.tweets.statusesUpdate(parameters);
+
 }
 
 

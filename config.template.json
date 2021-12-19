@@ -11,8 +11,6 @@
     "accessToken": "...",
     "accessTokenSecret": "..."
   },
-  "archiveMessages": true,
-  "tweetMessages": true,
   "tweetWithImage": true,
   "logToSlackChannel": true,
   "slackWebhookUrl": "..."
