@@ -44,7 +44,7 @@ Beispiel für Magdeburg: `286585400`
 
 Die folgenden Kommunen nehmen derzeit (Quelle: [https://sagsunseinfach.de](https://sagsunseinfach.de), Stand Nov. 2021) teil:
 Name | Id | Url
------|-----
+-----|-----|-----
 Stadt Gifhorn | 314181900 | https://include-ni.zfinder.de/mobileportalpms/314181900
 Stadt Goslar | 307091000 | https://include-ni.zfinder.de/mobileportalpms/307091000
 Stadt Halle (Saale) | 266802600 | https://include-st.zfinder.de/mobileportalpms/266802600
