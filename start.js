@@ -29,6 +29,8 @@ const tenantId = config.tenantId;
 const baseUrl = config.baseUrl;
 const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
 const messagesFilename = `./messages-${tenantId}.json`;
+const archiveDir = `./archives/archive-${tenantId}`;
+const imagesArchiveDir = `./archives/archive-${tenantId}/images`;
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
@@ -64,6 +66,12 @@ checkAndProcessNewMessages();
 function setupMessagesFileIfItDoesNotExists() {
     if (!fs.existsSync(messagesFilename)) {
         fs.copyFileSync('./messages-template.json', messagesFilename);
+    }
+    if (!fs.existsSync(archiveDir)) {
+        fs.mkdirSync(archiveDir, { recursive: true });
+    }
+    if (!fs.existsSync(imagesArchiveDir)) {
+        fs.mkdirSync(imagesArchiveDir, { recursive: true });
     }
 }
 
@@ -197,7 +205,7 @@ function fetchImage(messageDetails) {
 function saveImage(messageDetails, imageDataBuffer) {
     const mimeType = messageDetails.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `./archive/images/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    const filename = `${imagesArchiveDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
     fs.writeFileSync(filename, imageDataBuffer);
 }
 
@@ -235,7 +243,7 @@ function archiveNewMessages(messages) {
 
     const filename = `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z-messages.json`;
     const strMessages = JSON.stringify(messages, null, 2);
-    fs.writeFileSync(`./archive/${filename}`, strMessages);
+    fs.writeFileSync(`${archiveDir}/${filename}`, strMessages);
 
 }
 

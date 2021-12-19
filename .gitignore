@@ -121,9 +121,7 @@ dist
 
 messages.json
 messages-*.json
-archive/*.json
-archive/images/*.jpeg
-archive/images/*.png
+archives
 
 config.development.json
 config.production.json
