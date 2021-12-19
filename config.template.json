@@ -1,4 +1,5 @@
 {
+  "tenantName": "Magdeburg",
   "tenantId": "286585400",
   "baseUrl": "https://include-st.zfinder.de",
   "limitMessagesSync": 500,

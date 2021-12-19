@@ -25,6 +25,7 @@ const argv = yargs(hideBin(process.argv))
 
 const { config } = argv;
 
+const tenantName = config.tenantName;
 const tenantId = config.tenantId;
 const baseUrl = config.baseUrl;
 const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
@@ -412,8 +413,9 @@ function logFailedTweet(error) {
 }
 
 
-function sendToSlackChannel(text) {
+function sendToSlackChannel(message) {
 
+    const text = `${tenantName}/${tenantId}: ${message}`;
     const strData = JSON.stringify({ text });
     const options = {
         method: 'POST',
