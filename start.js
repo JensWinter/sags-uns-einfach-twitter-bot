@@ -48,6 +48,13 @@ proj4.defs([
     ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
 ]);
 
+const twitterClient = new TwitterClient({
+    apiKey: config.twitter.apiKey,
+    apiSecret: config.twitter.apiSecret,
+    accessToken: config.twitter.accessToken,
+    accessTokenSecret: config.twitter.accessTokenSecret
+});
+
 
 setupMessagesFileIfItDoesNotExists();
 
@@ -339,20 +346,10 @@ async function uploadImage(imageDataBuffer) {
 
 
 function sendTweet(status, display_coordinates, lat, long, mediaId) {
-
-    const twitterClient = new TwitterClient({
-        apiKey: config.twitter.apiKey,
-        apiSecret: config.twitter.apiSecret,
-        accessToken: config.twitter.accessToken,
-        accessTokenSecret: config.twitter.accessTokenSecret
-    });
-
     const parameters = display_coordinates
         ? { status, display_coordinates, lat, long, media_ids: mediaId }
         : { status, media_ids: mediaId };
-
     return twitterClient.tweets.statusesUpdate(parameters);
-
 }
 
 
