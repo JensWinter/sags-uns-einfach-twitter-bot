@@ -1,29 +1,12 @@
 'use strict';
 
-
 const https = require('https');
 const fs = require('fs');
 const TwitterClient = require('twitter-api-client').TwitterClient;
-const proj4 = require('proj4');
+const winston = require('winston');
 
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
-const argv = yargs(hideBin(process.argv))
-    .options({
-        'h': {
-            alias: 'help'
-        },
-        'c': {
-            alias: 'config',
-            demandOption: true,
-            type: 'string',
-        }
-    })
-    .coerce('config', arg => JSON.parse(fs.readFileSync(arg, 'utf8')))
-    .version()
-    .argv;
-
-const { config } = argv;
+const proj4 = initProj4();
+const config = initArgs();
 
 const tenantName = config.tenantName;
 const tenantId = config.tenantId;
@@ -33,6 +16,10 @@ const messagesFilename = `./messages-${tenantId}.json`;
 const archiveDir = `./archives/archive-${tenantId}`;
 const imagesArchiveDir = `./archives/archive-${tenantId}/images`;
 
+const logger = initLogger(config.tenantId);
+const twitterClient = initTwitterClient();
+
+const DATETIME_PREFIX = createDateTimePrefix();
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
@@ -40,26 +27,66 @@ const TWEET_WITH_IMAGE = config.tweetWithImage;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = config.slackWebhookUrl;
 
-const DATETIME_PREFIX = createDateTimePrefix();
 
-
-proj4.defs([
-    ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-    ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
-]);
-
-const twitterClient = new TwitterClient({
-    apiKey: config.twitter.apiKey,
-    apiSecret: config.twitter.apiSecret,
-    accessToken: config.twitter.accessToken,
-    accessTokenSecret: config.twitter.accessTokenSecret
-});
+logger.info('Run initiated.')
 
 
 setupMessagesFileIfItDoesNotExists();
 
 
 checkAndProcessNewMessages();
+
+
+function initProj4() {
+    const proj4 = require('proj4');
+    proj4.defs([
+        ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
+        ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
+    ]);
+    return proj4;
+}
+
+
+function initArgs() {
+
+    const yargs = require('yargs/yargs');
+    const { hideBin } = require('yargs/helpers');
+    const argv = yargs(hideBin(process.argv))
+        .options({
+            'h': {
+                alias: 'help'
+            },
+            'c': {
+                alias: 'config',
+                demandOption: true,
+                type: 'string',
+            }
+        })
+        .coerce('config', arg => JSON.parse(fs.readFileSync(arg, 'utf8')))
+        .version()
+        .argv;
+
+    return argv.config;
+
+}
+
+
+function initLogger(tenantId) {
+
+    return winston.createLogger({
+        level: 'info',
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.json()
+        ),
+        transports: [
+            new winston.transports.File({ filename: `${tenantId}.log` }),
+            new winston.transports.Console({ format: winston.format.simple() })
+        ]
+    });
+
+}
 
 
 function createDateTimePrefix() {
@@ -74,14 +101,27 @@ function createDateTimePrefix() {
 }
 
 
+function initTwitterClient() {
+    return new TwitterClient({
+        apiKey: config.twitter.apiKey,
+        apiSecret: config.twitter.apiSecret,
+        accessToken: config.twitter.accessToken,
+        accessTokenSecret: config.twitter.accessTokenSecret
+    });
+}
+
+
 function setupMessagesFileIfItDoesNotExists() {
     if (!fs.existsSync(messagesFilename)) {
+        logger.info('Creating messages file.')
         fs.copyFileSync('./messages-template.json', messagesFilename);
     }
     if (!fs.existsSync(archiveDir)) {
+        logger.info('Creating archive directory.')
         fs.mkdirSync(archiveDir, { recursive: true });
     }
     if (!fs.existsSync(imagesArchiveDir)) {
+        logger.info('Creating images directory.')
         fs.mkdirSync(imagesArchiveDir, { recursive: true });
     }
 }
@@ -110,7 +150,9 @@ function checkAndProcessNewMessages() {
             // Check for messages we haven't seen yet
             const newMessages = findNewMessages(currentMessages, pastMessages);
 
-            processNewMessages(pastMessages, newMessages);
+            processNewMessages(pastMessages, newMessages)
+                .then(() => logger.info('Run finished.'))
+                .catch(() => logger.error('Run finished with errors.'));
 
         });
 
@@ -122,7 +164,7 @@ function checkAndProcessNewMessages() {
 
 
 function loadPastMessages() {
-    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8'));
+    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8')).filter(m => m.id !== 394046120);
 }
 
 
@@ -131,13 +173,19 @@ function findNewMessages(currentMessages, pastMessages) {
 }
 
 
-function processNewMessages(pastMessages, newMessages) {
-    if (newMessages.length > 0) {
-        logNewMessages(newMessages)
-        recordNewMessages(pastMessages, newMessages);
-        archiveNewMessages(newMessages);
-        enqueueAndProcessMessages(newMessages)
+async function processNewMessages(pastMessages, newMessages) {
+
+    if (newMessages.length === 0) {
+        logger.info('No new messages to process.');
+        return Promise.resolve();
     }
+
+    logNewMessages(newMessages)
+    recordNewMessages(pastMessages, newMessages);
+    archiveNewMessages(newMessages);
+
+    return enqueueAndProcessMessages(newMessages);
+
 }
 
 
@@ -155,11 +203,16 @@ function archiveNewMessages(messages) {
 }
 
 
-function enqueueAndProcessMessages(messages) {
-    messages
-        .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
-        .reverse()
-        .forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000));
+async function enqueueAndProcessMessages(messages) {
+
+    return new Promise((resolve, reject) => {
+        messages
+            .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
+            .reverse()
+            .forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000));
+        delay(resolve, TWEET_DELAY_SECONDS * 1000)(null, messages.length);
+    });
+
 }
 
 
@@ -244,9 +297,11 @@ Bild: LH Magdeburg`;
             }
 
         } else {
-            sendTweet(status, display_coordinates, lat, long, null)
-                .then(console.info)
-                .catch(logFailedTweet);
+            try {
+                await sendTweet(status, display_coordinates, lat, long, null);
+            } catch(e) {
+                return logFailedTweet(e);
+            }
         }
 
     }
@@ -255,6 +310,8 @@ Bild: LH Magdeburg`;
 
 
 async function fetchMessageDetails(message) {
+
+    logger.info(`Fetching details for message "${message.id}"`);
 
     return new Promise((resolve, reject) => {
 
@@ -272,7 +329,8 @@ async function fetchMessageDetails(message) {
                 // Get the messages that are currently available
                 const messageDetails = JSON.parse(body);
                 if (messageDetails && messageDetails.length > 0) {
-                    return resolve(messageDetails[0]);
+                    logger.info(`Received details for message "${message.id}"`);
+                    resolve(messageDetails[0]);
                 }
 
                 return reject(`No details for message "${message.id}"`);
@@ -289,6 +347,7 @@ async function fetchMessageDetails(message) {
 
 
 function archiveMessageDetails(message) {
+    logger.info(`Archiving details for message "${message.id}"`);
     const filename = `${DATETIME_PREFIX}-message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
     fs.writeFileSync(`${archiveDir}/${filename}`, strMessage);
@@ -296,6 +355,8 @@ function archiveMessageDetails(message) {
 
 
 async function fetchImage(messageDetails) {
+
+    logger.info(`Fetching image of message "${messageDetails.id}"`)
 
     return new Promise((resolve, reject) => {
 
@@ -309,7 +370,10 @@ async function fetchImage(messageDetails) {
             const imageData = [];
 
             res.on('data', d => imageData.push(d));
-            res.on('end', () => resolve(Buffer.concat(imageData)));
+            res.on('end', () => {
+                logger.info(`Received image of message "${messageDetails.id}"`);
+                resolve(Buffer.concat(imageData));
+            });
 
         });
         req.on('error', () => reject(e.message));
@@ -321,6 +385,7 @@ async function fetchImage(messageDetails) {
 
 
 function saveImage(messageDetails, imageDataBuffer) {
+    logger.info(`Saving image of message "${messageDetails.id}"`);
     const mimeType = messageDetails.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
     const filename = `${imagesArchiveDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
@@ -330,6 +395,8 @@ function saveImage(messageDetails, imageDataBuffer) {
 
 async function uploadImage(imageDataBuffer) {
 
+    logger.info('Uploading image to Twitter')
+
     return new Promise((resolve, reject) => {
 
         // noinspection JSCheckFunctionSignatures
@@ -337,7 +404,10 @@ async function uploadImage(imageDataBuffer) {
         const uploadParams = { media_data: base64 };
         twitterClient.media
             .mediaUpload(uploadParams)
-            .then(uploadResult => resolve(uploadResult.media_id_string))
+            .then(uploadResult => {
+                logger.info('Image successfully sent to Twitter')
+                resolve(uploadResult.media_id_string);
+            })
             .catch(reject);
 
     });
@@ -346,6 +416,14 @@ async function uploadImage(imageDataBuffer) {
 
 
 function sendTweet(status, display_coordinates, lat, long, mediaId) {
+    logger.info('Sending tweet...');
+    logger.info(`...with status "${status}"`)
+    if (mediaId) {
+        logger.info(`...with media "${mediaId}"`)
+    }
+    if (display_coordinates) {
+        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
+    }
     const parameters = display_coordinates
         ? { status, display_coordinates, lat, long, media_ids: mediaId }
         : { status, media_ids: mediaId };
@@ -355,60 +433,54 @@ function sendTweet(status, display_coordinates, lat, long, mediaId) {
 
 function logFailedDataFetch(errorMessage) {
     const text = `Fetching data failed: ${errorMessage}`;
+    logger.error(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.error(text);
     }
 }
 
 
 function logFailedDetailsFetch(errorMessage) {
     const text = `Fetching details failed: ${errorMessage}`;
+    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.error(text);
     }
 }
 
 
 function logFailedImageFetch(errorMessage) {
     const text = `Fetching image failed: ${errorMessage}`;
+    logger.error(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.error(text);
     }
 }
 
 
 function logFailedImageSave(errorMessage) {
     const text = `Saving image failed: ${errorMessage}`;
+    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.error(text);
     }
 }
 
 
 function logNewMessages(messages) {
     const text = `Found new messages: ${messages.length}`;
+    logger.info(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.info(text);
     }
 }
 
 
 function logFailedTweet(error) {
     const text = `Sending tweet failed: ${JSON.stringify(error.data)}`;
+    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
-    } else {
-        console.error(text);
     }
 }
 
@@ -427,7 +499,11 @@ function sendToSlackChannel(message) {
     const req = https.request(
         SLACK_WEBHOOK_URL,
         options,
-        res => res.on('data', d => process.stdout.write(d))
+        res => {
+            if (res.statusCode !== 200) {
+                logger.error(`Failed to send message to Slack channel: ${text}`)
+            }
+        }
     );
 
     req.on('error', error => console.error(error));
