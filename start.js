@@ -5,6 +5,9 @@ const fs = require('fs');
 const TwitterClient = require('twitter-api-client').TwitterClient;
 const winston = require('winston');
 
+require('dotenv').config();
+
+
 const proj4 = initProj4();
 const config = initArgs();
 
@@ -25,7 +28,8 @@ const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
 const TWEET_WITH_IMAGE = config.tweetWithImage;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
-const SLACK_WEBHOOK_URL = config.slackWebhookUrl;
+
+const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 
 logger.info('Run initiated.')
@@ -103,10 +107,10 @@ function createDateTimePrefix() {
 
 function initTwitterClient() {
     return new TwitterClient({
-        apiKey: config.twitter.apiKey,
-        apiSecret: config.twitter.apiSecret,
-        accessToken: config.twitter.accessToken,
-        accessTokenSecret: config.twitter.accessTokenSecret
+        apiKey: process.env.TWITTER_API_KEY,
+        apiSecret: process.env.TWITTER_API_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN,
+        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
     });
 }
 
