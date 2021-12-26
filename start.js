@@ -164,7 +164,7 @@ function checkAndProcessNewMessages() {
 
 
 function loadPastMessages() {
-    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8')).filter(m => m.id !== 394046120);
+    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8'));
 }
 
 
