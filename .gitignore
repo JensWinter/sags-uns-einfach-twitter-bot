@@ -119,9 +119,5 @@ dist
 
 .idea/
 
-messages.json
-messages-*.json
-archives
-
 config.development.json
 config.production.json
