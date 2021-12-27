@@ -122,3 +122,6 @@ dist
 config.development.json
 config.production.json
 config.test.json
+
+/tenants/*/images/
+/tenants/*/messages/
