@@ -5,13 +5,6 @@
   "limitMessagesSync": 500,
   "tweetDelaySeconds": 30,
   "maxTweetsPerRun": 5,
-  "twitter": {
-    "apiKey": "...",
-    "apiSecret": "...",
-    "accessToken": "...",
-    "accessTokenSecret": "..."
-  },
   "tweetWithImage": true,
-  "logToSlackChannel": true,
-  "slackWebhookUrl": "..."
+  "logToSlackChannel": true
 }
