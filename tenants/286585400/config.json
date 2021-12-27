@@ -3,8 +3,8 @@
   "tenantId": "286585400",
   "baseUrl": "https://include-st.zfinder.de",
   "limitMessagesSync": 200,
-  "tweetDelaySeconds": 10,
-  "maxTweetsPerRun": 0,
+  "tweetDelaySeconds": 30,
+  "maxTweetsPerRun": 20,
   "tweetWithImage": true,
   "logToSlackChannel": true
 }
