@@ -1,0 +1,10 @@
+{
+  "tenantName": "Einheitsgemeinde Walsrode",
+  "tenantId": "320331707",
+  "baseUrl": "https://include-ni.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

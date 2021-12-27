@@ -1,0 +1,10 @@
+{
+  "tenantName": "Stadt Gruenberg",
+  "tenantId": "374537072",
+  "baseUrl": "https://include-he.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

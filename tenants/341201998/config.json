@@ -1,0 +1,10 @@
+{
+  "tenantName": "Samtgemeinde Dahlenburg",
+  "tenantId": "341201998",
+  "baseUrl": "https://include-ni.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

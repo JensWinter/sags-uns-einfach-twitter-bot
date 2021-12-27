@@ -1,0 +1,10 @@
+{
+  "tenantName": "Verbandsgemeinde Beetzendorf-Diesdorf",
+  "tenantId": "340246041",
+  "baseUrl": "https://include-st.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}
