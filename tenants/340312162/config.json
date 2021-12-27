@@ -1,0 +1,10 @@
+{
+  "tenantName": "Stadt Lueneburg",
+  "tenantId": "340312162",
+  "baseUrl": "https://include-ni.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

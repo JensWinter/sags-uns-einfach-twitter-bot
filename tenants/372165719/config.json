@@ -1,0 +1,10 @@
+{
+  "tenantName": "Samtgemeinde Bevensen-Ebstorf",
+  "tenantId": "372165719",
+  "baseUrl": "https://include-ni.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

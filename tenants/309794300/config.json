@@ -1,0 +1,10 @@
+{
+  "tenantName": "Stadt Wolmirstedt",
+  "tenantId": "309794300",
+  "baseUrl": "https://include-st.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

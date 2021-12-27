@@ -1,0 +1,10 @@
+{
+  "tenantName": "Stadt Nauheim",
+  "tenantId": "357687425",
+  "baseUrl": "https://include-he.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}

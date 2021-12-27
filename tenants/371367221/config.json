@@ -1,0 +1,10 @@
+{
+  "tenantName": "Einheitsgemeinde Biederitz",
+  "tenantId": "371367221",
+  "baseUrl": "https://include-st.zfinder.de",
+  "limitMessagesSync": 200,
+  "tweetDelaySeconds": 10,
+  "maxTweetsPerRun": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}
