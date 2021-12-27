@@ -88,7 +88,7 @@ function initLogger(tenantId) {
             winston.format.json()
         ),
         transports: [
-            new winston.transports.File({ filename: `${tenantId}.log` }),
+            new winston.transports.File({ filename: `${tenantDir}/output.log` }),
             new winston.transports.Console({ format: winston.format.simple() })
         ]
     });
