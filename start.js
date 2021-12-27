@@ -15,9 +15,12 @@ const tenantName = config.tenantName;
 const tenantId = config.tenantId;
 const baseUrl = config.baseUrl;
 const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
-const messagesFilename = `./messages-${tenantId}.json`;
-const archiveDir = `./archives/archive-${tenantId}`;
-const imagesArchiveDir = `./archives/archive-${tenantId}/images`;
+
+const tenantsDir = './tenants';
+const tenantDir = `${tenantsDir}/${tenantId}`;
+const messagesDir = `${tenantDir}/messages`;
+const allMessagesFilename = `${messagesDir}/all-messages.json`;
+const imagesDir = `${tenantDir}/images`;
 
 const logger = initLogger(config.tenantId);
 const twitterClient = initTwitterClient();
@@ -35,7 +38,7 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 logger.info('Run initiated.')
 
 
-setupMessagesFileIfItDoesNotExists();
+prepareTenantDirectory();
 
 
 checkAndProcessNewMessages();
@@ -115,18 +118,18 @@ function initTwitterClient() {
 }
 
 
-function setupMessagesFileIfItDoesNotExists() {
-    if (!fs.existsSync(messagesFilename)) {
-        logger.info('Creating messages file.')
-        fs.copyFileSync('./messages-template.json', messagesFilename);
+function prepareTenantDirectory() {
+    if (!fs.existsSync(messagesDir)) {
+        logger.info('Creating messages directory.')
+        fs.mkdirSync(messagesDir, { recursive: true });
     }
-    if (!fs.existsSync(archiveDir)) {
-        logger.info('Creating archive directory.')
-        fs.mkdirSync(archiveDir, { recursive: true });
-    }
-    if (!fs.existsSync(imagesArchiveDir)) {
+    if (!fs.existsSync(imagesDir)) {
         logger.info('Creating images directory.')
-        fs.mkdirSync(imagesArchiveDir, { recursive: true });
+        fs.mkdirSync(imagesDir, { recursive: true });
+    }
+    if (!fs.existsSync(allMessagesFilename)) {
+        logger.info('Creating messages file.')
+        fs.writeFileSync(allMessagesFilename, JSON.stringify([], null, 2));
     }
 }
 
@@ -156,7 +159,7 @@ function checkAndProcessNewMessages() {
 
             processNewMessages(pastMessages, newMessages)
                 .then(() => logger.info('Run finished.'))
-                .catch(() => logger.error('Run finished with errors.'));
+                .catch(e => logger.error('Run finished with errors.', e));
 
         });
 
@@ -168,7 +171,7 @@ function checkAndProcessNewMessages() {
 
 
 function loadPastMessages() {
-    return JSON.parse(fs.readFileSync(messagesFilename, 'utf-8'));
+    return JSON.parse(fs.readFileSync(allMessagesFilename, 'utf-8'));
 }
 
 
@@ -196,20 +199,20 @@ async function processNewMessages(pastMessages, newMessages) {
 function recordNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
-    fs.writeFileSync(messagesFilename, strMessages);
+    fs.writeFileSync(allMessagesFilename, strMessages);
 }
 
 
 function archiveNewMessages(messages) {
     const filename = `${DATETIME_PREFIX}-messages.json`;
     const strMessages = JSON.stringify(messages, null, 2);
-    fs.writeFileSync(`${archiveDir}/${filename}`, strMessages);
+    fs.writeFileSync(`${messagesDir}/${filename}`, strMessages);
 }
 
 
 async function enqueueAndProcessMessages(messages) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
@@ -354,7 +357,7 @@ function archiveMessageDetails(message) {
     logger.info(`Archiving details for message "${message.id}"`);
     const filename = `${DATETIME_PREFIX}-message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
-    fs.writeFileSync(`${archiveDir}/${filename}`, strMessage);
+    fs.writeFileSync(`${messagesDir}/${filename}`, strMessage);
 }
 
 
@@ -392,7 +395,7 @@ function saveImage(messageDetails, imageDataBuffer) {
     logger.info(`Saving image of message "${messageDetails.id}"`);
     const mimeType = messageDetails.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `${imagesArchiveDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
     fs.writeFileSync(filename, imageDataBuffer);
 }
 
