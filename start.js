@@ -22,7 +22,7 @@ const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
 
-const logger = initLogger(config.tenantId);
+const logger = initLogger();
 const twitterClient = initTwitterClient();
 
 const DATETIME_PREFIX = createDateTimePrefix();
@@ -78,7 +78,7 @@ function initArgs() {
 }
 
 
-function initLogger(tenantId) {
+function initLogger() {
 
     return winston.createLogger({
         level: 'info',
