@@ -19,6 +19,9 @@ const tenantDir = `${tenantsDir}/${tenantId}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
+const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
+const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
+const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
 
 const logger = initLogger();
 
@@ -92,6 +95,18 @@ function prepareTenantDirectory() {
     if (!fs.existsSync(allMessagesFilename)) {
         logger.info('Creating messages file.')
         fs.writeFileSync(allMessagesFilename, JSON.stringify([], null, 2));
+    }
+    if (!fs.existsSync(queueNewMessagesDir)) {
+        logger.info('Creating new messages queue directory.')
+        fs.mkdirSync(queueNewMessagesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueResponseUpdatesDir)) {
+        logger.info('Creating response updates queue directory.')
+        fs.mkdirSync(queueResponseUpdatesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueStatusUpdatesDir)) {
+        logger.info('Creating status updates queue directory.')
+        fs.mkdirSync(queueStatusUpdatesDir, { recursive: true });
     }
 }
 

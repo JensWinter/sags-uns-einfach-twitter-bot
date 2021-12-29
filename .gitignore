@@ -125,3 +125,6 @@ config.test.json
 
 /tenants/*/images/
 /tenants/*/messages/
+/tenants/*/queue_new_messages/
+/tenants/*/queue_response_updates/
+/tenants/*/queue_status_updates/
