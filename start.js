@@ -25,7 +25,6 @@ const imagesDir = `${tenantDir}/images`;
 const logger = initLogger();
 const twitterClient = initTwitterClient();
 
-const DATETIME_PREFIX = createDateTimePrefix();
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
 const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
@@ -93,18 +92,6 @@ function initLogger() {
         ]
     });
 
-}
-
-
-function createDateTimePrefix() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
-    const day = `${now.getUTCDate()}`.padStart(2, '0');
-    const hour = `${now.getUTCHours()}`.padStart(2, '0');
-    const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
-    const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
-    return `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z`;
 }
 
 
@@ -347,7 +334,7 @@ async function fetchMessageDetails(message) {
 
 function archiveMessageDetails(message) {
     logger.info(`Archiving details for message "${message.id}"`);
-    const filename = `${DATETIME_PREFIX}-message-${message.id}.json`;
+    const filename = `message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
     fs.writeFileSync(`${messagesDir}/${filename}`, strMessage);
 }
