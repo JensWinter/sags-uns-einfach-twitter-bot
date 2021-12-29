@@ -189,7 +189,6 @@ async function processNewMessages(pastMessages, newMessages) {
 
     logNewMessages(newMessages)
     recordNewMessages(pastMessages, newMessages);
-    archiveNewMessages(newMessages);
 
     return enqueueAndProcessMessages(newMessages);
 
@@ -200,13 +199,6 @@ function recordNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
     fs.writeFileSync(allMessagesFilename, strMessages);
-}
-
-
-function archiveNewMessages(messages) {
-    const filename = `${DATETIME_PREFIX}-messages.json`;
-    const strMessages = JSON.stringify(messages, null, 2);
-    fs.writeFileSync(`${messagesDir}/${filename}`, strMessages);
 }
 
 
