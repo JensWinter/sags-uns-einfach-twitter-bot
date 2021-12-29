@@ -2,13 +2,11 @@
 
 const https = require('https');
 const fs = require('fs');
-const TwitterClient = require('twitter-api-client').TwitterClient;
 const winston = require('winston');
 
 require('dotenv').config();
 
 
-const proj4 = initProj4();
 const config = initArgs();
 
 const tenantName = config.tenantName;
@@ -23,12 +21,9 @@ const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
 
 const logger = initLogger();
-const twitterClient = initTwitterClient();
 
 const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
 const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
-const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
-const TWEET_WITH_IMAGE = config.tweetWithImage;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -41,16 +36,6 @@ prepareTenantDirectory();
 
 
 checkAndProcessNewMessages();
-
-
-function initProj4() {
-    const proj4 = require('proj4');
-    proj4.defs([
-        ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-        ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
-    ]);
-    return proj4;
-}
 
 
 function initArgs() {
@@ -92,16 +77,6 @@ function initLogger() {
         ]
     });
 
-}
-
-
-function initTwitterClient() {
-    return new TwitterClient({
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-    });
 }
 
 
@@ -195,22 +170,19 @@ async function enqueueAndProcessMessages(messages) {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000));
-        delay(resolve, TWEET_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessNewMessage(processNewMessage, TWEET_DELAY_SECONDS * 1000));
+        delayProcessNewMessage(resolve, TWEET_DELAY_SECONDS * 1000)(null, messages.length);
     });
 
 }
 
 
-function delay(fn, delay) {
-    return (message, i) => {
-        const sendTweet = i < MAX_TWEETS_PER_RUN;
-        setTimeout(() => fn(message, sendTweet), i * delay);
-    };
+function delayProcessNewMessage(fn, delay) {
+    return (message, i) => setTimeout(() => fn(message), i * delay);
 }
 
 
-async function processMessage(message, doSendTweet) {
+async function processNewMessage(message) {
 
     let messageDetails = null;
     try {
@@ -234,60 +206,6 @@ async function processMessage(message, doSendTweet) {
             await saveImage(messageDetails, imageData);
         } catch (e) {
             return logFailedImageSave(e);
-        }
-
-    }
-
-    if (doSendTweet) {
-
-        const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-        const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
-        let status = `Meldung vom ${date}:
-    
-${message.subject}
-${url}`;
-
-        const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-        const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-        let lat = null;
-        let long = null;
-        if (display_coordinates) {
-            const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-            if (coordinateSystem === 'EPSG:25832') {
-                const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-                lat = destinationCoord[1];
-                long = destinationCoord[0];
-            } else {
-                lat = message.messagePosition.geoCoding.latitude;
-                long = message.messagePosition.geoCoding.longitude;
-            }
-        }
-
-        if (TWEET_WITH_IMAGE && imageData) {
-
-            let mediaId = null;
-            try {
-                mediaId = await uploadImage(imageData);
-            } catch (e) {
-                return logFailedTweet(e);
-            }
-
-            status += `
-Bild: LH Magdeburg`;
-
-            try {
-                await sendTweet(status, display_coordinates, lat, long, mediaId);
-            } catch(e) {
-                return logFailedTweet(e);
-            }
-
-        } else {
-            try {
-                await sendTweet(status, display_coordinates, lat, long, null);
-            } catch(e) {
-                return logFailedTweet(e);
-            }
         }
 
     }
@@ -379,44 +297,6 @@ function saveImage(messageDetails, imageDataBuffer) {
 }
 
 
-async function uploadImage(imageDataBuffer) {
-
-    logger.info('Uploading image to Twitter')
-
-    return new Promise((resolve, reject) => {
-
-        // noinspection JSCheckFunctionSignatures
-        const base64 = imageDataBuffer.toString('base64');
-        const uploadParams = { media_data: base64 };
-        twitterClient.media
-            .mediaUpload(uploadParams)
-            .then(uploadResult => {
-                logger.info('Image successfully sent to Twitter')
-                resolve(uploadResult.media_id_string);
-            })
-            .catch(reject);
-
-    });
-
-}
-
-
-function sendTweet(status, display_coordinates, lat, long, mediaId) {
-    logger.info('Sending tweet...');
-    logger.info(`...with status "${status}"`)
-    if (mediaId) {
-        logger.info(`...with media "${mediaId}"`)
-    }
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
-    }
-    const parameters = display_coordinates
-        ? { status, display_coordinates, lat, long, media_ids: mediaId }
-        : { status, media_ids: mediaId };
-    return twitterClient.tweets.statusesUpdate(parameters);
-}
-
-
 function logFailedDataFetch(errorMessage) {
     const text = `Fetching data failed: ${errorMessage}`;
     logger.error(text);
@@ -456,15 +336,6 @@ function logFailedImageSave(errorMessage) {
 function logNewMessages(messages) {
     const text = `Found new messages: ${messages.length}`;
     logger.info(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedTweet(error) {
-    const text = `Sending tweet failed: ${JSON.stringify(error.data)}`;
-    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
