@@ -168,7 +168,7 @@ async function processNewMessages(pastMessages, newMessages) {
     logNewMessages(newMessages)
     recordNewMessages(pastMessages, newMessages);
 
-    return enqueueAndProcessMessages(newMessages);
+    return processNewMessagesDelayed(newMessages);
 
 }
 
@@ -180,7 +180,7 @@ function recordNewMessages(pastMessages, newMessages) {
 }
 
 
-async function enqueueAndProcessMessages(messages) {
+async function processNewMessagesDelayed(messages) {
 
     return new Promise(resolve => {
         messages
