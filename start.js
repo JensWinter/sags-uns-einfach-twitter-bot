@@ -27,6 +27,7 @@ const logger = initLogger();
 
 const LIMIT_MESSAGES_FETCH = config.limitMessagesFetch;
 const PROCESS_DELAY_SECONDS = config.processDelaySeconds;
+const MAX_QUEUE_SIZE = config.maxQueueSize;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -225,6 +226,10 @@ async function processNewMessage(message) {
 
     }
 
+    if (MAX_QUEUE_SIZE > 0) {
+        enqueueNewMessage(messageDetails);
+    }
+
 }
 
 
@@ -309,6 +314,17 @@ function saveImage(messageDetails, imageDataBuffer) {
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
     const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
     fs.writeFileSync(filename, imageDataBuffer);
+}
+
+
+function enqueueNewMessage(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueNewMessagesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving message "${messageDetails.id}" into new messages queue`);
+        fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
+    }
 }
 
 
