@@ -136,8 +136,8 @@ function fetchAndProcessMessages() {
             const newMessages = findNewMessages(currentMessages, pastMessages);
 
             processNewMessages(pastMessages, newMessages)
-                .then(() => logger.info('Run finished.'))
-                .catch(e => logger.error('Run finished with errors.', e));
+                .then(() => logger.info('Processing new messages finished.'))
+                .catch(e => logger.error('Processing new messages finished with errors.', e));
 
         });
 
