@@ -2,9 +2,9 @@
   "tenantName": "Stadt Bad Soden im Taunus",
   "tenantId": "348111492",
   "baseUrl": "https://include-he.zfinder.de",
-  "limitMessagesSync": 200,
-  "tweetDelaySeconds": 10,
-  "maxTweetsPerRun": 0,
+  "limitMessagesFetch": 200,
+  "processDelaySeconds": 10,
+  "maxQueueSize": 0,
   "tweetWithImage": true,
   "logToSlackChannel": true
 }

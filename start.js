@@ -25,8 +25,8 @@ const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
 
 const logger = initLogger();
 
-const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
-const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
+const LIMIT_MESSAGES_FETCH = config.limitMessagesFetch;
+const PROCESS_DELAY_SECONDS = config.processDelaySeconds;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -113,7 +113,7 @@ function prepareTenantDirectory() {
 
 function checkAndProcessNewMessages() {
 
-    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, res => {
+    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
 
         if (res.statusCode !== 200) {
             logFailedDataFetch(res.statusMessage);
@@ -185,8 +185,8 @@ async function enqueueAndProcessMessages(messages) {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delayProcessNewMessage(processNewMessage, TWEET_DELAY_SECONDS * 1000));
-        delayProcessNewMessage(resolve, TWEET_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessNewMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
+        delayProcessNewMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
     });
 
 }
