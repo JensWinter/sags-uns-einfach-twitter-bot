@@ -186,14 +186,14 @@ async function processNewMessagesDelayed(messages) {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delayProcessNewMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
-        delayProcessNewMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
+        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
     });
 
 }
 
 
-function delayProcessNewMessage(fn, delay) {
+function delayProcessMessage(fn, delay) {
     return (message, i) => setTimeout(() => fn(message), i * delay);
 }
 
