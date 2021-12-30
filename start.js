@@ -39,7 +39,7 @@ logger.info('Run initiated.')
 prepareTenantDirectory();
 
 
-checkAndProcessNewMessages();
+fetchAndProcessMessages();
 
 
 function initArgs() {
@@ -112,7 +112,7 @@ function prepareTenantDirectory() {
 }
 
 
-function checkAndProcessNewMessages() {
+function fetchAndProcessMessages() {
 
     const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
 
