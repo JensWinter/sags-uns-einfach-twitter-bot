@@ -139,6 +139,13 @@ function fetchAndProcessMessages() {
                 .then(() => logger.info('Processing new messages finished.'))
                 .catch(e => logger.error('Processing new messages finished with errors.', e));
 
+/*
+            // Check if there are any updates to already known messages
+            processMessageUpdates(currentMessages)
+                .then(() => logger.info('Processing message updates finished.'))
+                .catch(e => logger.error('Processing message updates finished with errors.', e));
+*/
+
         });
 
     });
@@ -173,6 +180,12 @@ async function processNewMessages(pastMessages, newMessages) {
 }
 
 
+async function processMessageUpdates(currentMessages) {
+    logger.info('Checking for message updates');
+    return processMessageUpdatesDelayed(currentMessages);
+}
+
+
 function recordNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
@@ -187,6 +200,19 @@ async function processNewMessagesDelayed(messages) {
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
             .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
+        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
+    });
+
+}
+
+
+async function processMessageUpdatesDelayed(messages) {
+
+    return new Promise(resolve => {
+        messages
+            .sort((a, b) => a.lastUpdated > b.lastUpdated ? -1 : 0)
+            .reverse()
+            .forEach(delayProcessMessage(processMessageUpdate, PROCESS_DELAY_SECONDS * 1000));
         delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
     });
 
@@ -228,6 +254,30 @@ async function processNewMessage(message) {
 
     if (MAX_QUEUE_SIZE > 0) {
         enqueueNewMessage(messageDetails);
+    }
+
+}
+
+
+async function processMessageUpdate(message) {
+
+    const filename = `message-${message.id}.json`;
+    const filepath = `${messagesDir}/${filename}`;
+    if (fs.existsSync(filepath)) {
+        const oldMessage = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+        if (message.lastUpdated > oldMessage.lastUpdated) {
+            const messageDetails = await fetchMessageDetails(message);
+            logger.info('*********************************************')
+            logger.info(oldMessage);
+            logger.info(messageDetails)
+            if (oldMessage.status !== messageDetails.status) {
+                logger.info('status');
+            }
+            if (messageDetails.responses.length > messageDetails.responses.length) {
+                logger.info('responses');
+            }
+            logger.info('*********************************************')
+        }
     }
 
 }
@@ -324,6 +374,28 @@ function enqueueNewMessage(messageDetails) {
         fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
         logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
+    }
+}
+
+
+function enqueueResponseUpdate(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueResponseUpdatesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving response update for message "${messageDetails.id}" into response update queue`);
+        fs.writeFileSync(`${queueResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Queue is full!`);
+    }
+}
+
+
+function enqueueStatusUpdate(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueStatusUpdatesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving status update for message "${messageDetails.id}" into status update queue`);
+        fs.writeFileSync(`${queueStatusUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue status update for message "${messageDetails.id}". Queue is full!`);
     }
 }
 
