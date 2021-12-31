@@ -20,6 +20,7 @@ const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
 const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantId}`;
 const imagesDir = `${tenantDir}/images`;
+const tweetsDir = `${tenantDir}/tweets`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
 const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
@@ -30,6 +31,9 @@ const twitterClient = initTwitterClient();
 const TWEET_WITH_IMAGE = config.tweetWithImage;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+
+
+prepareTenantDirectory();
 
 
 popAndProcessMessage()
@@ -86,6 +90,14 @@ function initLogger() {
         ]
     });
 
+}
+
+
+function prepareTenantDirectory() {
+    if (!fs.existsSync(tweetsDir)) {
+        logger.info('Creating tweets directory.')
+        fs.mkdirSync(tweetsDir, { recursive: true });
+    }
 }
 
 
