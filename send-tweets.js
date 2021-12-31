@@ -36,7 +36,7 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 prepareTenantDirectory();
 
 
-popAndProcessMessage()
+popAndProcessNewMessage()
     .then()
     .catch(e => logger.error('Processing queue failed.', e));
 
@@ -111,7 +111,7 @@ function initTwitterClient() {
 }
 
 
-async function popAndProcessMessage() {
+async function popAndProcessNewMessage() {
 
     const itemToProcess = fs
         .readdirSync(queueNewMessagesDir)
@@ -123,20 +123,18 @@ async function popAndProcessMessage() {
 
         logger.info(`Found new message to tweet: ${itemToProcess}`);
 
-        const message = loadMessage(itemToProcess);
-
+        const message = loadNewMessageFromQueue(itemToProcess);
         const imageData = message.messageImage ? loadImage(message) : null;
+        await processNewMessage(message, imageData);
 
-        await processMessage(message, imageData);
-
-        removeItemFromQueue(itemToProcess);
+        removeItemFromNewMessagesQueue(itemToProcess);
 
     }
 
 }
 
 
-function loadMessage(filename) {
+function loadNewMessageFromQueue(filename) {
     return JSON.parse(fs.readFileSync(`${queueNewMessagesDir}/${filename}`, 'utf-8'));
 }
 
@@ -150,7 +148,7 @@ function loadImage(messageDetails) {
 }
 
 
-async function processMessage(message, imageData) {
+async function processNewMessage(message, imageData) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
@@ -245,7 +243,7 @@ function sendTweet(status, display_coordinates, lat, long, mediaId) {
 }
 
 
-function removeItemFromQueue(filename) {
+function removeItemFromNewMessagesQueue(filename) {
     logger.info(`Removing item "${filename}" from new messages queue`)
     fs.unlinkSync(`${queueNewMessagesDir}/${filename}`)
 }
