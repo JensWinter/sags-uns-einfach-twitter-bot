@@ -2,9 +2,9 @@
   "tenantName": "Hansestadt Salzwedel",
   "tenantId": "383005984",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesSync": 200,
-  "tweetDelaySeconds": 10,
-  "maxTweetsPerRun": 0,
+  "limitMessagesFetch": 200,
+  "processDelaySeconds": 10,
+  "maxQueueSize": 0,
   "tweetWithImage": true,
   "logToSlackChannel": true
 }

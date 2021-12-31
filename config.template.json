@@ -2,9 +2,9 @@
   "tenantName": "Magdeburg",
   "tenantId": "286585400",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesSync": 500,
-  "tweetDelaySeconds": 30,
-  "maxTweetsPerRun": 5,
+  "limitMessagesFetch": 200,
+  "processDelaySeconds": 30,
+  "maxQueueSize": 0,
   "tweetWithImage": true,
   "logToSlackChannel": true
 }

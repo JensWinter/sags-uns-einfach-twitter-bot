@@ -28,7 +28,7 @@ cp ./.config.template.json ./config.json
    (Datei config.json editieren und die jeweiligen [Parameter](#parameter) festlegen)
 5. Ausführen
 ```
-node ./start.js -c config.json
+node ./fetch-messages.js -c config.json
 ```
 
 bzw. einen **Cron-Job** einrichten, der die Ausführung regelmäßig (bspw. stündlich) startet.

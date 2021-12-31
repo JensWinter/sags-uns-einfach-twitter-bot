@@ -2,13 +2,11 @@
 
 const https = require('https');
 const fs = require('fs');
-const TwitterClient = require('twitter-api-client').TwitterClient;
 const winston = require('winston');
 
 require('dotenv').config();
 
 
-const proj4 = initProj4();
 const config = initArgs();
 
 const tenantName = config.tenantName;
@@ -21,15 +19,15 @@ const tenantDir = `${tenantsDir}/${tenantId}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
+const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
+const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
+const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
 
 const logger = initLogger();
-const twitterClient = initTwitterClient();
 
-const DATETIME_PREFIX = createDateTimePrefix();
-const LIMIT_MESSAGES_SYNC = config.limitMessagesSync;
-const TWEET_DELAY_SECONDS = config.tweetDelaySeconds;
-const MAX_TWEETS_PER_RUN = config.maxTweetsPerRun;
-const TWEET_WITH_IMAGE = config.tweetWithImage;
+const LIMIT_MESSAGES_FETCH = config.limitMessagesFetch;
+const PROCESS_DELAY_SECONDS = config.processDelaySeconds;
+const MAX_QUEUE_SIZE = config.maxQueueSize;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -41,17 +39,7 @@ logger.info('Run initiated.')
 prepareTenantDirectory();
 
 
-checkAndProcessNewMessages();
-
-
-function initProj4() {
-    const proj4 = require('proj4');
-    proj4.defs([
-        ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-        ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
-    ]);
-    return proj4;
-}
+fetchAndProcessMessages();
 
 
 function initArgs() {
@@ -88,33 +76,11 @@ function initLogger() {
             winston.format.json()
         ),
         transports: [
-            new winston.transports.File({ filename: `${tenantDir}/output.log` }),
+            new winston.transports.File({ filename: `${tenantDir}/output-fetch-messages.log` }),
             new winston.transports.Console({ format: winston.format.simple() })
         ]
     });
 
-}
-
-
-function createDateTimePrefix() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = `${now.getUTCMonth() + 1}`.padStart(2, '0');
-    const day = `${now.getUTCDate()}`.padStart(2, '0');
-    const hour = `${now.getUTCHours()}`.padStart(2, '0');
-    const minutes = `${now.getUTCMinutes()}`.padStart(2, '0');
-    const seconds = `${now.getUTCSeconds()}`.padStart(2, '0');
-    return `${year}-${month}-${day}T${hour}-${minutes}-${seconds}Z`;
-}
-
-
-function initTwitterClient() {
-    return new TwitterClient({
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-    });
 }
 
 
@@ -131,12 +97,24 @@ function prepareTenantDirectory() {
         logger.info('Creating messages file.')
         fs.writeFileSync(allMessagesFilename, JSON.stringify([], null, 2));
     }
+    if (!fs.existsSync(queueNewMessagesDir)) {
+        logger.info('Creating new messages queue directory.')
+        fs.mkdirSync(queueNewMessagesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueResponseUpdatesDir)) {
+        logger.info('Creating response updates queue directory.')
+        fs.mkdirSync(queueResponseUpdatesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueStatusUpdatesDir)) {
+        logger.info('Creating status updates queue directory.')
+        fs.mkdirSync(queueStatusUpdatesDir, { recursive: true });
+    }
 }
 
 
-function checkAndProcessNewMessages() {
+function fetchAndProcessMessages() {
 
-    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_SYNC}`, res => {
+    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
 
         if (res.statusCode !== 200) {
             logFailedDataFetch(res.statusMessage);
@@ -158,8 +136,8 @@ function checkAndProcessNewMessages() {
             const newMessages = findNewMessages(currentMessages, pastMessages);
 
             processNewMessages(pastMessages, newMessages)
-                .then(() => logger.info('Run finished.'))
-                .catch(e => logger.error('Run finished with errors.', e));
+                .then(() => logger.info('Processing new messages finished.'))
+                .catch(e => logger.error('Processing new messages finished with errors.', e));
 
         });
 
@@ -189,9 +167,8 @@ async function processNewMessages(pastMessages, newMessages) {
 
     logNewMessages(newMessages)
     recordNewMessages(pastMessages, newMessages);
-    archiveNewMessages(newMessages);
 
-    return enqueueAndProcessMessages(newMessages);
+    return processNewMessagesDelayed(newMessages);
 
 }
 
@@ -203,35 +180,25 @@ function recordNewMessages(pastMessages, newMessages) {
 }
 
 
-function archiveNewMessages(messages) {
-    const filename = `${DATETIME_PREFIX}-messages.json`;
-    const strMessages = JSON.stringify(messages, null, 2);
-    fs.writeFileSync(`${messagesDir}/${filename}`, strMessages);
-}
-
-
-async function enqueueAndProcessMessages(messages) {
+async function processNewMessagesDelayed(messages) {
 
     return new Promise(resolve => {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delay(processMessage, TWEET_DELAY_SECONDS * 1000));
-        delay(resolve, TWEET_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
+        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
     });
 
 }
 
 
-function delay(fn, delay) {
-    return (message, i) => {
-        const sendTweet = i < MAX_TWEETS_PER_RUN;
-        setTimeout(() => fn(message, sendTweet), i * delay);
-    };
+function delayProcessMessage(fn, delay) {
+    return (message, i) => setTimeout(() => fn(message), i * delay);
 }
 
 
-async function processMessage(message, doSendTweet) {
+async function processNewMessage(message) {
 
     let messageDetails = null;
     try {
@@ -259,58 +226,8 @@ async function processMessage(message, doSendTweet) {
 
     }
 
-    if (doSendTweet) {
-
-        const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-        const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
-        let status = `Meldung vom ${date}:
-    
-${message.subject}
-${url}`;
-
-        const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-        const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-        let lat = null;
-        let long = null;
-        if (display_coordinates) {
-            const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-            if (coordinateSystem === 'EPSG:25832') {
-                const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-                lat = destinationCoord[1];
-                long = destinationCoord[0];
-            } else {
-                lat = message.messagePosition.geoCoding.latitude;
-                long = message.messagePosition.geoCoding.longitude;
-            }
-        }
-
-        if (TWEET_WITH_IMAGE && imageData) {
-
-            let mediaId = null;
-            try {
-                mediaId = await uploadImage(imageData);
-            } catch (e) {
-                return logFailedTweet(e);
-            }
-
-            status += `
-Bild: LH Magdeburg`;
-
-            try {
-                await sendTweet(status, display_coordinates, lat, long, mediaId);
-            } catch(e) {
-                return logFailedTweet(e);
-            }
-
-        } else {
-            try {
-                await sendTweet(status, display_coordinates, lat, long, null);
-            } catch(e) {
-                return logFailedTweet(e);
-            }
-        }
-
+    if (MAX_QUEUE_SIZE > 0) {
+        enqueueNewMessage(messageDetails);
     }
 
 }
@@ -355,7 +272,7 @@ async function fetchMessageDetails(message) {
 
 function archiveMessageDetails(message) {
     logger.info(`Archiving details for message "${message.id}"`);
-    const filename = `${DATETIME_PREFIX}-message-${message.id}.json`;
+    const filename = `message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
     fs.writeFileSync(`${messagesDir}/${filename}`, strMessage);
 }
@@ -400,41 +317,14 @@ function saveImage(messageDetails, imageDataBuffer) {
 }
 
 
-async function uploadImage(imageDataBuffer) {
-
-    logger.info('Uploading image to Twitter')
-
-    return new Promise((resolve, reject) => {
-
-        // noinspection JSCheckFunctionSignatures
-        const base64 = imageDataBuffer.toString('base64');
-        const uploadParams = { media_data: base64 };
-        twitterClient.media
-            .mediaUpload(uploadParams)
-            .then(uploadResult => {
-                logger.info('Image successfully sent to Twitter')
-                resolve(uploadResult.media_id_string);
-            })
-            .catch(reject);
-
-    });
-
-}
-
-
-function sendTweet(status, display_coordinates, lat, long, mediaId) {
-    logger.info('Sending tweet...');
-    logger.info(`...with status "${status}"`)
-    if (mediaId) {
-        logger.info(`...with media "${mediaId}"`)
+function enqueueNewMessage(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueNewMessagesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving message "${messageDetails.id}" into new messages queue`);
+        fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
     }
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
-    }
-    const parameters = display_coordinates
-        ? { status, display_coordinates, lat, long, media_ids: mediaId }
-        : { status, media_ids: mediaId };
-    return twitterClient.tweets.statusesUpdate(parameters);
 }
 
 
@@ -477,15 +367,6 @@ function logFailedImageSave(errorMessage) {
 function logNewMessages(messages) {
     const text = `Found new messages: ${messages.length}`;
     logger.info(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedTweet(error) {
-    const text = `Sending tweet failed: ${JSON.stringify(error.data)}`;
-    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
