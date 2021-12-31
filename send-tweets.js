@@ -33,12 +33,33 @@ const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 
-prepareTenantDirectory();
+(async () => {
 
+    prepareTenantDirectory();
 
-popAndProcessNewMessage()
-    .then()
-    .catch(e => logger.error('Processing queue failed.', e));
+    let processNewMessageResult = null;
+    try {
+        processNewMessageResult = await popAndProcessNewMessage();
+    } catch (e) {
+        logger.error('Processing new messages queue failed.', e)
+        return;
+    }
+
+    let processStatusUpdateResult = null;
+    if (!processNewMessageResult) {
+        try {
+            processStatusUpdateResult = await popAndProcessStatusUpdate();
+        } catch (e) {
+            logger.error('Processing status updates queue failed.', e);
+            return;
+        }
+    }
+
+    if (!processStatusUpdateResult) {
+        // TODO: Pop and process response updates (#10)
+    }
+
+})();
 
 
 function initProj4() {
@@ -131,6 +152,8 @@ async function popAndProcessNewMessage() {
 
     }
 
+    return itemToProcess;
+
 }
 
 
@@ -189,14 +212,16 @@ ${url}`;
 Bild: LH Magdeburg`;
 
         try {
-            await sendTweet(status, display_coordinates, lat, long, mediaId);
+            const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, mediaId);
+            saveTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
         }
 
     } else {
         try {
-            await sendTweet(status, display_coordinates, lat, long, null);
+            const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, null);
+            saveTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
         }
@@ -227,7 +252,8 @@ async function uploadImage(imageDataBuffer) {
 }
 
 
-function sendTweet(status, display_coordinates, lat, long, mediaId) {
+async function sendNewMessageTweet(status, display_coordinates, lat, long, mediaId) {
+
     logger.info('Sending tweet...');
     logger.info(`...with status "${status}"`)
     if (mediaId) {
@@ -236,16 +262,154 @@ function sendTweet(status, display_coordinates, lat, long, mediaId) {
     if (display_coordinates) {
         logger.info(`...with coordinate lat="${lat}" long="${long}"`);
     }
-    const parameters = display_coordinates
-        ? { status, display_coordinates, lat, long, media_ids: mediaId }
-        : { status, media_ids: mediaId };
-    return twitterClient.tweets.statusesUpdate(parameters);
+
+    return new Promise((resolve, reject) => {
+        const parameters = display_coordinates
+            ? { status, display_coordinates, lat, long, media_ids: mediaId }
+            : { status, media_ids: mediaId };
+        twitterClient.tweets
+            .statusesUpdate(parameters)
+            .then(sendResult => {
+                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
+                resolve(sendResult);
+            })
+            .catch(reject);
+    });
+
 }
 
 
 function removeItemFromNewMessagesQueue(filename) {
     logger.info(`Removing item "${filename}" from new messages queue`)
     fs.unlinkSync(`${queueNewMessagesDir}/${filename}`)
+}
+
+
+async function popAndProcessStatusUpdate() {
+
+    const itemToProcess = fs
+        .readdirSync(queueStatusUpdatesDir)
+        .filter(f => f.startsWith('message-') && f.endsWith('.json'))
+        .sort()
+        .shift();
+
+    if (itemToProcess) {
+
+        logger.info(`Found status update to tweet: ${itemToProcess}`);
+
+        const message = loadStatusUpdateFromQueue(itemToProcess);
+        const tweets = loadTweets(message);
+        const lastTweet = tweets.pop();
+        if (lastTweet) {
+            await processStatusUpdate(message, lastTweet.id_str);
+        } else {
+            await processStatusUpdate(message, null);
+        }
+
+        removeItemFromStatusUpdatesQueue(itemToProcess);
+
+    }
+
+    return itemToProcess;
+
+}
+
+
+function loadStatusUpdateFromQueue(filename) {
+    return JSON.parse(fs.readFileSync(`${queueStatusUpdatesDir}/${filename}`, 'utf-8'));
+}
+
+
+function loadTweets(message) {
+    const filename = `${tweetsDir}/tweets-${message.id}.json`;
+    return fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+}
+
+
+async function processStatusUpdate(message, replyToId) {
+
+    const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const date = new Date(message.lastUpdated).toLocaleDateString('de-DE', localeOptions);
+
+    let statusText = '';
+    switch (message.status.toLowerCase()) {
+        case 'open':
+            statusText = '\u26A0 In Bearbeitung';
+            break;
+        case 'closed':
+            statusText = '\u2705 Abgeschlossen';
+            break;
+        case 'hold':
+            statusText = '💤 Warteposition';
+            break;
+    }
+
+    let status = `${date}:
+
+${statusText}`;
+
+    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
+    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
+    let lat = null;
+    let long = null;
+    if (display_coordinates) {
+        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
+        if (coordinateSystem === 'EPSG:25832') {
+            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
+            lat = destinationCoord[1];
+            long = destinationCoord[0];
+        } else {
+            lat = message.messagePosition.geoCoding.latitude;
+            long = message.messagePosition.geoCoding.longitude;
+        }
+    }
+
+    try {
+        const sendTweetResult = await sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        saveTweet(message, sendTweetResult);
+    } catch(e) {
+        return logFailedTweet(e);
+    }
+
+}
+
+
+async function sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId) {
+
+    logger.info('Sending tweet...');
+    logger.info(`...with status "${status}"`)
+    if (display_coordinates) {
+        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
+    }
+
+    return new Promise((resolve, reject) => {
+        const parameters = display_coordinates
+            ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
+            : { status, media_ids: mediaId, in_reply_to_status_id: replyToId };
+        twitterClient.tweets
+            .statusesUpdate(parameters)
+            .then(sendResult => {
+                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
+                resolve(sendResult);
+            })
+            .catch(reject);
+    });
+
+}
+
+
+function removeItemFromStatusUpdatesQueue(filename) {
+    logger.info(`Removing item "${filename}" from status updates queue`)
+    fs.unlinkSync(`${queueStatusUpdatesDir}/${filename}`)
+}
+
+
+function saveTweet(message, tweetResult) {
+    const filename = `${tweetsDir}/tweets-${message.id}.json`;
+    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+    tweets.push(tweetResult);
+    const tweetResultStr = JSON.stringify(tweets, null, 2);
+    fs.writeFileSync(filename, tweetResultStr);
 }
 
 
