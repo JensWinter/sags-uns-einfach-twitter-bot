@@ -366,35 +366,11 @@ ${statusText}`;
     }
 
     try {
-        const sendTweetResult = await sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
         saveTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
     }
-
-}
-
-
-async function sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId) {
-
-    logger.info('Sending tweet...');
-    logger.info(`...with status "${status}"`)
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
-    }
-
-    return new Promise((resolve, reject) => {
-        const parameters = display_coordinates
-            ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
-            : { status, media_ids: mediaId, in_reply_to_status_id: replyToId };
-        twitterClient.tweets
-            .statusesUpdate(parameters)
-            .then(sendResult => {
-                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
-                resolve(sendResult);
-            })
-            .catch(reject);
-    });
 
 }
 
@@ -466,35 +442,11 @@ async function processResponseUpdate(message, replyToId) {
     }
 
     try {
-        const sendTweetResult = await sendResponseUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
         saveTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
     }
-
-}
-
-
-async function sendResponseUpdateTweet(status, display_coordinates, lat, long, replyToId) {
-
-    logger.info('Sending tweet...');
-    logger.info(`...with status "${status}"`)
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
-    }
-
-    return new Promise((resolve, reject) => {
-        const parameters = display_coordinates
-            ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
-            : { status, media_ids: mediaId, in_reply_to_status_id: replyToId };
-        twitterClient.tweets
-            .statusesUpdate(parameters)
-            .then(sendResult => {
-                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
-                resolve(sendResult);
-            })
-            .catch(reject);
-    });
 
 }
 
@@ -517,6 +469,30 @@ function saveTweet(message, tweetResult) {
     tweets.push(tweetResult);
     const tweetResultStr = JSON.stringify(tweets, null, 2);
     fs.writeFileSync(filename, tweetResultStr);
+}
+
+
+async function sendUpdateTweet(status, display_coordinates, lat, long, replyToId) {
+
+    logger.info('Sending tweet...');
+    logger.info(`...with status "${status}"`)
+    if (display_coordinates) {
+        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
+    }
+
+    return new Promise((resolve, reject) => {
+        const parameters = display_coordinates
+            ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
+            : { status, media_ids: mediaId, in_reply_to_status_id: replyToId };
+        twitterClient.tweets
+            .statusesUpdate(parameters)
+            .then(sendResult => {
+                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
+                resolve(sendResult);
+            })
+            .catch(reject);
+    });
+
 }
 
 
