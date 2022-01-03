@@ -47,6 +47,7 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
     let processStatusUpdateResult = null;
     if (!processNewMessageResult) {
+
         try {
             processStatusUpdateResult = await popAndProcessStatusUpdate();
         } catch (e) {
@@ -56,7 +57,13 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
     }
 
     if (!processStatusUpdateResult) {
-        // TODO: Pop and process response updates (#10)
+
+        try {
+            await popAndProcessResponseUpdate();
+        } catch (e) {
+            logger.error('Processing response updates queue failed.', e);
+        }
+
     }
 
 })();
@@ -320,12 +327,6 @@ function loadStatusUpdateFromQueue(filename) {
 }
 
 
-function loadTweets(message) {
-    const filename = `${tweetsDir}/tweets-${message.id}.json`;
-    return fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
-}
-
-
 async function processStatusUpdate(message, replyToId) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -365,7 +366,7 @@ ${statusText}`;
     }
 
     try {
-        const sendTweetResult = await sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
         saveTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
@@ -374,7 +375,104 @@ ${statusText}`;
 }
 
 
-async function sendStatusUpdateTweet(status, display_coordinates, lat, long, replyToId) {
+function removeItemFromStatusUpdatesQueue(filename) {
+    logger.info(`Removing item "${filename}" from status updates queue`)
+    fs.unlinkSync(`${queueStatusUpdatesDir}/${filename}`)
+}
+
+
+async function popAndProcessResponseUpdate() {
+
+    const itemToProcess = fs
+        .readdirSync(queueResponseUpdatesDir)
+        .filter(f => f.startsWith('message-') && f.endsWith('.json'))
+        .sort()
+        .shift();
+
+    if (itemToProcess) {
+
+        logger.info(`Found response update to tweet: ${itemToProcess}`);
+
+        const message = loadResponseUpdateFromQueue(itemToProcess);
+        const tweets = loadTweets(message);
+        const lastTweet = tweets.pop();
+        if (lastTweet) {
+            await processResponseUpdate(message, lastTweet.id_str);
+        } else {
+            await processResponseUpdate(message, null);
+        }
+
+        removeItemFromResponseUpdatesQueue(itemToProcess);
+
+    }
+
+    return itemToProcess;
+
+}
+
+
+function loadResponseUpdateFromQueue(filename) {
+    return JSON.parse(fs.readFileSync(`${queueResponseUpdatesDir}/${filename}`, 'utf-8'));
+}
+
+
+async function processResponseUpdate(message, replyToId) {
+
+    const response = message.responses.pop();
+    const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
+    const responseText = response.message.length > 265 ? `${response.message.slice(0, 260)}[...]` : response.message;
+    let status = `${date}:
+
+"${responseText}"`;
+    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
+    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
+    let lat = null;
+    let long = null;
+    if (display_coordinates) {
+        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
+        if (coordinateSystem === 'EPSG:25832') {
+            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
+            lat = destinationCoord[1];
+            long = destinationCoord[0];
+        } else {
+            lat = message.messagePosition.geoCoding.latitude;
+            long = message.messagePosition.geoCoding.longitude;
+        }
+    }
+
+    try {
+        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        saveTweet(message, sendTweetResult);
+    } catch(e) {
+        return logFailedTweet(e);
+    }
+
+}
+
+
+function removeItemFromResponseUpdatesQueue(filename) {
+    logger.info(`Removing item "${filename}" from response updates queue`)
+    fs.unlinkSync(`${queueResponseUpdatesDir}/${filename}`)
+}
+
+
+function loadTweets(message) {
+    const filename = `${tweetsDir}/tweets-${message.id}.json`;
+    return fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+}
+
+
+function saveTweet(message, tweetResult) {
+    const filename = `${tweetsDir}/tweets-${message.id}.json`;
+    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+    tweets.push(tweetResult);
+    const tweetResultStr = JSON.stringify(tweets, null, 2);
+    fs.writeFileSync(filename, tweetResultStr);
+}
+
+
+async function sendUpdateTweet(status, display_coordinates, lat, long, replyToId) {
 
     logger.info('Sending tweet...');
     logger.info(`...with status "${status}"`)
@@ -395,21 +493,6 @@ async function sendStatusUpdateTweet(status, display_coordinates, lat, long, rep
             .catch(reject);
     });
 
-}
-
-
-function removeItemFromStatusUpdatesQueue(filename) {
-    logger.info(`Removing item "${filename}" from status updates queue`)
-    fs.unlinkSync(`${queueStatusUpdatesDir}/${filename}`)
-}
-
-
-function saveTweet(message, tweetResult) {
-    const filename = `${tweetsDir}/tweets-${message.id}.json`;
-    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
-    tweets.push(tweetResult);
-    const tweetResultStr = JSON.stringify(tweets, null, 2);
-    fs.writeFileSync(filename, tweetResultStr);
 }
 
 
