@@ -282,6 +282,13 @@ async function processMessageUpdate(oldMessage) {
 
     archiveMessageDetails(messageDetails);
 
+    if (oldMessage.responses.length < messageDetails.responses.length) {
+        logger.info(`${messageDetails.responses.length - oldMessage.responses.length} new response(s) in message "${messageDetails.id}" `);
+        if (MAX_QUEUE_SIZE > 0) {
+            enqueueResponseUpdate(messageDetails);
+        }
+    }
+
     if (oldMessage.status !== messageDetails.status) {
         logger.info(`Status of message "${messageDetails.id}" changed from "${oldMessage.status}" to "${messageDetails.status}"`);
         if (MAX_QUEUE_SIZE > 0) {
@@ -383,6 +390,17 @@ function enqueueNewMessage(messageDetails) {
         fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
         logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
+    }
+}
+
+
+function enqueueResponseUpdate(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueResponseUpdatesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving response update for message "${messageDetails.id}" into response update queue`);
+        fs.writeFileSync(`${queueResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Queue is full!`);
     }
 }
 
