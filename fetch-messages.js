@@ -136,7 +136,16 @@ function fetchAndProcessMessages() {
             const newMessages = findNewMessages(currentMessages, pastMessages);
 
             processNewMessages(pastMessages, newMessages)
-                .then(() => logger.info('Processing new messages finished.'))
+                .then(() => {
+
+                    logger.info('Processing new messages finished.');
+
+                    // Check if there are any updates to already known messages
+                    processMessageUpdates(currentMessages)
+                        .then(() => logger.info('Processing message updates finished.'))
+                        .catch(e => logger.error('Processing message updates finished with errors.', e));
+
+                })
                 .catch(e => logger.error('Processing new messages finished with errors.', e));
 
         });
@@ -173,6 +182,12 @@ async function processNewMessages(pastMessages, newMessages) {
 }
 
 
+async function processMessageUpdates(currentMessages) {
+    logger.info('Checking for message updates');
+    return processMessageUpdatesDelayed(currentMessages);
+}
+
+
 function recordNewMessages(pastMessages, newMessages) {
     const allMessages = pastMessages.concat(...newMessages);
     const strMessages = JSON.stringify(allMessages, null, 2);
@@ -188,6 +203,34 @@ async function processNewMessagesDelayed(messages) {
             .reverse()
             .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
         delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
+    });
+
+}
+
+
+async function processMessageUpdatesDelayed(messages) {
+
+    return new Promise(resolve => {
+
+        let index = 0;
+        messages
+            .sort((a, b) => a.lastUpdated > b.lastUpdated ? -1 : 0)
+            .reverse()
+            .forEach(message => {
+
+                const filepath = `${messagesDir}/message-${message.id}.json`;
+                if (fs.existsSync(filepath)) {
+                    const oldMessage = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
+                    if (message.lastUpdated > oldMessage.lastUpdated) {
+                        delayProcessMessage(processMessageUpdate, PROCESS_DELAY_SECONDS * 1000)(oldMessage, index);
+                        index++;
+                    }
+                }
+
+            });
+
+        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, index);
+
     });
 
 }
@@ -228,6 +271,29 @@ async function processNewMessage(message) {
 
     if (MAX_QUEUE_SIZE > 0) {
         enqueueNewMessage(messageDetails);
+    }
+
+}
+
+
+async function processMessageUpdate(oldMessage) {
+
+    const messageDetails = await fetchMessageDetails(oldMessage);
+
+    archiveMessageDetails(messageDetails);
+
+    if (oldMessage.responses.length < messageDetails.responses.length) {
+        logger.info(`${messageDetails.responses.length - oldMessage.responses.length} new response(s) in message "${messageDetails.id}" `);
+        if (MAX_QUEUE_SIZE > 0) {
+            enqueueResponseUpdate(messageDetails);
+        }
+    }
+
+    if (oldMessage.status !== messageDetails.status) {
+        logger.info(`Status of message "${messageDetails.id}" changed from "${oldMessage.status}" to "${messageDetails.status}"`);
+        if (MAX_QUEUE_SIZE > 0) {
+            enqueueStatusUpdate(messageDetails);
+        }
     }
 
 }
@@ -324,6 +390,28 @@ function enqueueNewMessage(messageDetails) {
         fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
         logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
+    }
+}
+
+
+function enqueueResponseUpdate(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueResponseUpdatesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving response update for message "${messageDetails.id}" into response update queue`);
+        fs.writeFileSync(`${queueResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Queue is full!`);
+    }
+}
+
+
+function enqueueStatusUpdate(messageDetails) {
+    const currentQueueSize = fs.readdirSync(queueStatusUpdatesDir).length;
+    if (currentQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving status update for message "${messageDetails.id}" into status update queue`);
+        fs.writeFileSync(`${queueStatusUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue status update for message "${messageDetails.id}". Queue is full!`);
     }
 }
 
