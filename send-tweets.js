@@ -310,7 +310,7 @@ async function popAndProcessStatusUpdate() {
         if (lastTweet) {
             await processStatusUpdate(message, lastTweet.id_str);
         } else {
-            await processStatusUpdate(message, null);
+            logger.warn(`Didn't send status update tweet for message "${itemToProcess}", because origin tweet couldn't be found.`);
         }
 
         removeItemFromStatusUpdatesQueue(itemToProcess);
@@ -399,7 +399,7 @@ async function popAndProcessResponseUpdate() {
         if (lastTweet) {
             await processResponseUpdate(message, lastTweet.id_str);
         } else {
-            await processResponseUpdate(message, null);
+            logger.warn(`Didn't send response update tweet for message "${itemToProcess}", because origin tweet couldn't be found.`);
         }
 
         removeItemFromResponseUpdatesQueue(itemToProcess);
