@@ -483,7 +483,7 @@ async function sendUpdateTweet(status, display_coordinates, lat, long, replyToId
     return new Promise((resolve, reject) => {
         const parameters = display_coordinates
             ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
-            : { status, media_ids: mediaId, in_reply_to_status_id: replyToId };
+            : { status, in_reply_to_status_id: replyToId };
         twitterClient.tweets
             .statusesUpdate(parameters)
             .then(sendResult => {
