@@ -497,8 +497,8 @@ async function sendUpdateTweet(status, display_coordinates, lat, long, replyToId
 
 
 function logFailedTweet(error) {
-    const text = `Sending tweet failed: ${JSON.stringify(error.data)}`;
-    logger.error(text)
+    const text = 'Sending tweet failed';
+    logger.error(text, error);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
