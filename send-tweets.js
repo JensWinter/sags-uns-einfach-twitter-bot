@@ -45,25 +45,25 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
         return;
     }
 
-    let processStatusUpdateResult = null;
+    let processResponseUpdateResult = null;
     if (!processNewMessageResult) {
 
         try {
-            processStatusUpdateResult = await popAndProcessStatusUpdate();
-        } catch (e) {
-            logger.error('Processing status updates queue failed.', e);
-            return;
-        }
-    }
-
-    if (!processStatusUpdateResult) {
-
-        try {
-            await popAndProcessResponseUpdate();
+            processResponseUpdateResult = await popAndProcessResponseUpdate();
         } catch (e) {
             logger.error('Processing response updates queue failed.', e);
+            return;
         }
 
+    }
+
+    if (!processNewMessageResult && !processResponseUpdateResult) {
+
+        try {
+            await popAndProcessStatusUpdate();
+        } catch (e) {
+            logger.error('Processing status updates queue failed.', e);
+        }
     }
 
 })();
