@@ -272,14 +272,14 @@ async function processNewMessage(message) {
     if (MAX_QUEUE_SIZE > 0) {
         enqueueNewMessage(messageDetails);
 
-        // Special handling when published message was already closed
-        if (messageDetails.status.toLowerCase() === 'closed') {
-            if (messageDetails.responses.length > 0) {
-                enqueueResponseUpdate(messageDetails);
-            }
-            enqueueStatusUpdate(messageDetails);
+        if (messageDetails.responses.length > 0) {
+            enqueueResponseUpdate(messageDetails);
         }
 
+        // Special handling when published message was already closed
+        if (messageDetails.status.toLowerCase() === 'closed') {
+            enqueueStatusUpdate(messageDetails);
+        }
     }
 
 }
