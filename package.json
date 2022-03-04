@@ -8,6 +8,7 @@
   "author": "Jens Winter",
   "license": "MIT",
   "dependencies": {
+    "date-fns": "^2.28.0",
     "dotenv": "^10.0.0",
     "proj4": "^2.7.5",
     "twitter-api-client": "^1.4.0",
