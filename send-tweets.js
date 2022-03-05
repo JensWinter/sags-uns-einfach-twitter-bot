@@ -24,6 +24,7 @@ const tweetsDir = `${tenantDir}/tweets`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
 const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
+const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
 
 const logger = initLogger();
 const twitterClient = initTwitterClient();
@@ -64,6 +65,12 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
         } catch (e) {
             logger.error('Processing status updates queue failed.', e);
         }
+    }
+
+    try {
+        await popAndProcessStatisticsUpdate();
+    } catch (e) {
+        logger.error('Processing statistics queue failed.', e)
     }
 
 })();
@@ -220,7 +227,7 @@ Bild: LH Magdeburg`;
 
         try {
             const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, mediaId);
-            saveTweet(message, sendTweetResult);
+            saveMessageTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
         }
@@ -228,7 +235,7 @@ Bild: LH Magdeburg`;
     } else {
         try {
             const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, null);
-            saveTweet(message, sendTweetResult);
+            saveMessageTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
         }
@@ -367,7 +374,7 @@ ${statusText}`;
 
     try {
         const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
-        saveTweet(message, sendTweetResult);
+        saveMessageTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
     }
@@ -443,7 +450,7 @@ async function processResponseUpdate(message, replyToId) {
 
     try {
         const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
-        saveTweet(message, sendTweetResult);
+        saveMessageTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
     }
@@ -457,14 +464,68 @@ function removeItemFromResponseUpdatesQueue(filename) {
 }
 
 
+async function popAndProcessStatisticsUpdate() {
+
+    const itemToProcess = fs
+        .readdirSync(queueStatisticsUpdatesDir)
+        .filter(f => f.startsWith('stats-') && f.endsWith('.txt'))
+        .sort()
+        .shift();
+
+    if (itemToProcess) {
+
+        logger.info(`Found statistics update to tweet: ${itemToProcess}`);
+
+        const text = loadStatisticsUpdateFromQueue(itemToProcess);
+        await processStatisticsUpdate(text);
+
+        removeItemFromStatisticsUpdatesQueue(itemToProcess);
+
+    }
+
+    return itemToProcess;
+
+}
+
+
+function loadStatisticsUpdateFromQueue(filename) {
+    return fs.readFileSync(`${queueStatisticsUpdatesDir}/${filename}`, 'utf-8');
+}
+
+
+async function processStatisticsUpdate(text, date) {
+    try {
+        const sendTweetResult = await sendUpdateTweet(text, false, null, null);
+        saveStatisticsTweet(text, sendTweetResult);
+    } catch(e) {
+        return logFailedTweet(e);
+    }
+}
+
+
+function removeItemFromStatisticsUpdatesQueue(filename) {
+    logger.info(`Removing item "${filename}" from statistics updates queue`)
+    fs.unlinkSync(`${queueStatisticsUpdatesDir}/${filename}`)
+}
+
+
 function loadTweets(message) {
     const filename = `${tweetsDir}/tweets-${message.id}.json`;
     return fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
 }
 
 
-function saveTweet(message, tweetResult) {
+function saveMessageTweet(message, tweetResult) {
     const filename = `${tweetsDir}/tweets-${message.id}.json`;
+    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+    tweets.push(tweetResult);
+    const tweetResultStr = JSON.stringify(tweets, null, 2);
+    fs.writeFileSync(filename, tweetResultStr);
+}
+
+
+function saveStatisticsTweet(text, tweetResult) {
+    const filename = `${tweetsDir}/weekly-stats.json`;
     const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
     tweets.push(tweetResult);
     const tweetResultStr = JSON.stringify(tweets, null, 2);
