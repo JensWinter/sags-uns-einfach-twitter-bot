@@ -298,12 +298,15 @@ async function processMessageUpdate(oldMessage) {
         }
     }
 
+    // Commented out because of #26 (https://github.com/JensWinter/sags-uns-einfach-twitter-bot/issues/26)
+/*
     if (oldMessage.status !== messageDetails.status) {
         logger.info(`Status of message "${messageDetails.id}" changed from "${oldMessage.status}" to "${messageDetails.status}"`);
         if (MAX_QUEUE_SIZE > 0) {
             enqueueStatusUpdate(messageDetails);
         }
     }
+*/
 
 }
 
