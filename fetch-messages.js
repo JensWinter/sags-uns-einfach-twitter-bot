@@ -276,10 +276,13 @@ async function processNewMessage(message) {
             enqueueResponseUpdate(messageDetails);
         }
 
+        // Commented out because of #26 (https://github.com/JensWinter/sags-uns-einfach-twitter-bot/issues/26)
+        /*
         // Special handling when published message was already closed
         if (messageDetails.status.toLowerCase() === 'closed') {
             enqueueStatusUpdate(messageDetails);
         }
+        */
     }
 
 }
