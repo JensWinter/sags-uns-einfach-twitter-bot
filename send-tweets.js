@@ -425,7 +425,7 @@ function loadResponseUpdateFromQueue(filename) {
 
 async function processResponseUpdate(message, replyToId) {
 
-    const response = message.responses.pop();
+    const response = message.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
     const responseText = response.message.length > 265 ? `${response.message.slice(0, 260)}[...]` : response.message;
