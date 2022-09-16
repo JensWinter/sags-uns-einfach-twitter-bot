@@ -1,0 +1,10 @@
+{
+  "tenantName": "Stadt Querfurt",
+  "tenantId": "347181261",
+  "baseUrl": "https://include-st.zfinder.de",
+  "limitMessagesFetch": 200,
+  "processDelaySeconds": 10,
+  "maxQueueSize": 0,
+  "tweetWithImage": true,
+  "logToSlackChannel": true
+}
