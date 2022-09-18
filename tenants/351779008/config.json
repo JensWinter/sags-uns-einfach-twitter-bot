@@ -2,7 +2,7 @@
   "tenantName": "Stadt Limburg an der Lahn",
   "tenantId": "351779008",
   "baseUrl": "https://include-he.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

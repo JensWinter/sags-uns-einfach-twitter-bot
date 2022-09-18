@@ -2,7 +2,7 @@
   "tenantName": "Stadt Uelzen",
   "tenantId": "334820982",
   "baseUrl": "https://include-ni.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 300,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

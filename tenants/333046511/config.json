@@ -2,7 +2,7 @@
   "tenantName": "Stadt Coswig (Anhalt)",
   "tenantId": "333046511",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

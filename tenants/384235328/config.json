@@ -2,7 +2,7 @@
   "tenantName": "Samtgemeinde Ostheide",
   "tenantId": "384235328",
   "baseUrl": "https://include-ni.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

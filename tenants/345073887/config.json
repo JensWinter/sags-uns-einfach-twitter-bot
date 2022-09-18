@@ -2,7 +2,7 @@
   "tenantName": "Stadt Zeitz",
   "tenantId": "345073887",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

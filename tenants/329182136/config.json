@@ -2,7 +2,7 @@
   "tenantName": "Stadt Bassum",
   "tenantId": "329182136",
   "baseUrl": "https://include-ni.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

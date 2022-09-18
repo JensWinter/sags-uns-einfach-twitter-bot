@@ -2,7 +2,7 @@
   "tenantName": "Gemeinde Freigericht",
   "tenantId": "358205940",
   "baseUrl": "https://include-he.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

@@ -2,7 +2,7 @@
   "tenantName": "Stadt Bad Duerrenberg",
   "tenantId": "394683992",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,

@@ -2,7 +2,7 @@
   "tenantName": "Landeshauptstadt Magdeburg",
   "tenantId": "286585400",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 20,
   "tweetWithImage": true,
