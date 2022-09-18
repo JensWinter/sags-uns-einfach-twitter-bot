@@ -250,7 +250,7 @@ async function processNewMessage(message) {
         return logFailedDetailsFetch(e);
     }
 
-    archiveMessageDetails(messageDetails);
+    saveMessageDetails(messageDetails);
 
     let imageData = null;
     if (messageDetails.messageImage) {
@@ -292,7 +292,7 @@ async function processMessageUpdate(oldMessage) {
 
     const messageDetails = await fetchMessageDetails(oldMessage);
 
-    archiveMessageDetails(messageDetails);
+    saveMessageDetails(messageDetails);
 
     if (oldMessage.responses.length < messageDetails.responses.length) {
         logger.info(`${messageDetails.responses.length - oldMessage.responses.length} new response(s) in message "${messageDetails.id}" `);
@@ -351,7 +351,7 @@ async function fetchMessageDetails(message) {
 }
 
 
-function archiveMessageDetails(message) {
+function saveMessageDetails(message) {
     logger.info(`Archiving details for message "${message.id}"`);
     const filename = `message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
