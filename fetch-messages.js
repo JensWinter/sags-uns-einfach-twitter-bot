@@ -3,6 +3,7 @@
 const https = require('https');
 const fs = require('fs');
 const winston = require('winston');
+const dateFns = require('date-fns');
 
 require('dotenv').config();
 
@@ -22,6 +23,11 @@ const imagesDir = `${tenantDir}/images`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
 const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
+const archiveDir = './archive';
+const tenantArchiveDir = `${archiveDir}/${tenantId}`;
+const archiveImagesDir = `${tenantArchiveDir}/images`;
+const archiveMessagesDir = `${tenantArchiveDir}/messages`;
+const allMessagesArchiveFilename = `${archiveMessagesDir}/all-messages.json`;
 
 const logger = initLogger();
 
@@ -29,6 +35,7 @@ const LIMIT_MESSAGES_FETCH = config.limitMessagesFetch;
 const PROCESS_DELAY_SECONDS = config.processDelaySeconds;
 const MAX_QUEUE_SIZE = config.maxQueueSize;
 const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
+const ARCHIVE_OLD_MESSAGES = config.archiveOldMessages;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
@@ -36,7 +43,7 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 logger.info('Run initiated.')
 
 
-prepareTenantDirectory();
+prepareTenantDirectories();
 
 
 fetchAndProcessMessages();
@@ -84,7 +91,7 @@ function initLogger() {
 }
 
 
-function prepareTenantDirectory() {
+function prepareTenantDirectories() {
     if (!fs.existsSync(messagesDir)) {
         logger.info('Creating messages directory.')
         fs.mkdirSync(messagesDir, { recursive: true });
@@ -108,6 +115,12 @@ function prepareTenantDirectory() {
     if (!fs.existsSync(queueStatusUpdatesDir)) {
         logger.info('Creating status updates queue directory.')
         fs.mkdirSync(queueStatusUpdatesDir, { recursive: true });
+    }
+    if (ARCHIVE_OLD_MESSAGES && !fs.existsSync(archiveMessagesDir)) {
+        fs.mkdirSync(archiveMessagesDir, { recursive: true });
+    }
+    if (ARCHIVE_OLD_MESSAGES && !fs.existsSync(archiveImagesDir)) {
+        fs.mkdirSync(archiveImagesDir, { recursive: true });
     }
 }
 
@@ -142,7 +155,17 @@ function fetchAndProcessMessages() {
 
                     // Check if there are any updates to already known messages
                     processMessageUpdates(currentMessages)
-                        .then(() => logger.info('Processing message updates finished.'))
+                        .then(() => {
+
+                            logger.info('Processing message updates finished.');
+
+                            if (ARCHIVE_OLD_MESSAGES) {
+                                archiveOldMessages(pastMessages, currentMessages)
+                                    .then(() => logger.info('Archiving old messages finished.'))
+                                    .catch(e =>  logger.error('Archiving old messages finished with errors.', e));
+                            }
+
+                        })
                         .catch(e => logger.error('Processing message updates finished with errors.', e));
 
                 })
@@ -428,6 +451,38 @@ function enqueueStatusUpdate(messageDetails) {
     } else {
         logger.warn(`Didn't queue status update for message "${messageDetails.id}". Queue is full!`);
     }
+}
+
+
+async function archiveOldMessages(pastMessages, currentMessages) {
+
+    const thresholdDate = dateFns.endOfISOWeek(dateFns.subMonths(new Date(), 6));
+    const allMessages = loadPastMessages();
+    const messagesToArchive = allMessages.filter(m1 => {
+        const messageNotInFetchResult = currentMessages.every(m2 => m2.id !== m1.id);
+        const messageTooOld = dateFns.isBefore(m1.lastUpdated, thresholdDate)
+        return messageNotInFetchResult || messageTooOld;
+    });
+
+    const allImageFiles = fs.readdirSync(imagesDir);
+    messagesToArchive.forEach(message => {
+
+        // Move image files
+        const imageFiles = allImageFiles.filter(file => file.startsWith(`${message.id}-`));
+        imageFiles.forEach(
+            imageFile => fs.renameSync(`${imagesDir}/${imageFile}`, `${archiveImagesDir}/${imageFile}`)
+        );
+
+        // Move message file
+        if (fs.existsSync(`${messagesDir}/message-${message.id}.json`)) {
+            fs.renameSync(
+                `${messagesDir}/message-${message.id}.json`,
+                `${archiveMessagesDir}/message-${message.id}.json`
+            );
+        }
+
+    });
+
 }
 
 
