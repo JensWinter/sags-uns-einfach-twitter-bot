@@ -123,6 +123,7 @@ config.development.json
 config.production.json
 config.test.json
 
+archive/
 /tenants/*/images/
 /tenants/*/messages/
 /tenants/*/queue_new_messages/
