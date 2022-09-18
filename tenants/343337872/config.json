@@ -2,9 +2,10 @@
   "tenantName": "Gemeinde Barleben",
   "tenantId": "343337872",
   "baseUrl": "https://include-st.zfinder.de",
-  "limitMessagesFetch": 200,
+  "limitMessagesFetch": 500,
   "processDelaySeconds": 10,
   "maxQueueSize": 0,
   "tweetWithImage": true,
-  "logToSlackChannel": true
+  "logToSlackChannel": true,
+  "archiveOldMessages": true
 }
