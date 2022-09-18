@@ -6,5 +6,6 @@
   "processDelaySeconds": 10,
   "maxQueueSize": 20,
   "tweetWithImage": true,
-  "logToSlackChannel": true
+  "logToSlackChannel": true,
+  "archiveOldMessages": true
 }
