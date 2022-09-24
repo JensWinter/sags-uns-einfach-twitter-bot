@@ -4,10 +4,12 @@ const https = require('https');
 const fs = require('fs');
 const winston = require('winston');
 const dateFns = require('date-fns');
+const { MongoClient } = require('mongodb');
 
 require('dotenv').config();
 
 
+const proj4 = initProj4();
 const config = initArgs();
 
 const tenantName = config.tenantName;
@@ -27,7 +29,6 @@ const archiveDir = './archive';
 const tenantArchiveDir = `${archiveDir}/${tenantId}`;
 const archiveImagesDir = `${tenantArchiveDir}/images`;
 const archiveMessagesDir = `${tenantArchiveDir}/messages`;
-const allMessagesArchiveFilename = `${archiveMessagesDir}/all-messages.json`;
 
 const logger = initLogger();
 
@@ -38,6 +39,13 @@ const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
 const ARCHIVE_OLD_MESSAGES = config.archiveOldMessages;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_NAME = process.env.DATABASE_NAME;
+
+
+const mongoClient = new MongoClient(DATABASE_URL);
+const db = mongoClient.db(DATABASE_NAME);
+const messagesCollection = db.collection('messages');
 
 
 logger.info('Run initiated.')
@@ -46,7 +54,20 @@ logger.info('Run initiated.')
 prepareTenantDirectories();
 
 
-fetchAndProcessMessages();
+mongoClient
+    .connect()
+    .then(() => fetchAndProcessMessages().then(async () => await mongoClient.close()).catch(logger.error))
+    .catch(logger.error);
+
+
+function initProj4() {
+    const proj4 = require('proj4');
+    proj4.defs([
+        ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
+        ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
+    ]);
+    return proj4;
+}
 
 
 function initArgs() {
@@ -125,57 +146,76 @@ function prepareTenantDirectories() {
 }
 
 
-function fetchAndProcessMessages() {
+async function fetchAndProcessMessages() {
 
-    const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
+    return new Promise((resolve, reject) => {
 
-        if (res.statusCode !== 200) {
-            logFailedDataFetch(res.statusMessage);
-            return;
-        }
+        const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
 
-        let body = '';
+            if (res.statusCode !== 200) {
+                logFailedDataFetch(res.statusMessage);
+                return reject(res.statusMessage);
+            }
 
-        res.on('data', d => body += d);
-        res.on('end', () => {
+            let body = '';
 
-            // Get the messages that are currently available
-            const currentMessages = JSON.parse(body);
+            res.on('data', d => body += d);
+            res.on('end', () => {
 
-            // Load all the messages we already know
-            const pastMessages = loadPastMessages();
+                // Get the messages that are currently available
+                const currentMessages = JSON.parse(body);
 
-            // Check for messages we haven't seen yet
-            const newMessages = findNewMessages(currentMessages, pastMessages);
+                // Load all the messages we already know
+                const pastMessages = loadPastMessages();
 
-            processNewMessages(pastMessages, newMessages)
-                .then(() => {
+                // Check for messages we haven't seen yet
+                const newMessages = findNewMessages(currentMessages, pastMessages);
 
-                    logger.info('Processing new messages finished.');
+                processNewMessages(pastMessages, newMessages)
+                    .then(() => {
 
-                    // Check if there are any updates to already known messages
-                    processMessageUpdates(currentMessages)
-                        .then(() => {
+                        logger.info('Processing new messages finished.');
 
-                            logger.info('Processing message updates finished.');
+                        // Check if there are any updates to already known messages
+                        processMessageUpdates(currentMessages)
+                            .then(() => {
 
-                            if (ARCHIVE_OLD_MESSAGES) {
-                                archiveOldMessages(pastMessages, currentMessages)
-                                    .then(() => logger.info('Archiving old messages finished.'))
-                                    .catch(e =>  logger.error('Archiving old messages finished with errors.', e));
-                            }
+                                logger.info('Processing message updates finished.');
 
-                        })
-                        .catch(e => logger.error('Processing message updates finished with errors.', e));
+                                if (ARCHIVE_OLD_MESSAGES) {
+                                    archiveOldMessages(pastMessages, currentMessages)
+                                        .then(() => {
+                                            logger.info('Archiving old messages finished.');
+                                            resolve();
+                                        })
+                                        .catch(e => {
+                                            logger.error('Archiving old messages finished with errors.', e);
+                                            reject(e);
+                                        });
+                                }
 
-                })
-                .catch(e => logger.error('Processing new messages finished with errors.', e));
+                            })
+                            .catch(e => {
+                                logger.error('Processing message updates finished with errors.', e);
+                                reject(e);
+                            });
+
+                    })
+                    .catch(e => {
+                        logger.error('Processing new messages finished with errors.', e);
+                        reject(e);
+                    });
+
+            });
 
         });
+        req.on('error', e => {
+            logFailedDataFetch(e.message);
+            reject(e);
+        });
+        req.end();
 
     });
-    req.on('error', e => logFailedDataFetch(e.message));
-    req.end();
 
 }
 
@@ -273,7 +313,8 @@ async function processNewMessage(message) {
         return logFailedDetailsFetch(e);
     }
 
-    saveMessageDetails(messageDetails);
+    saveMessageDetailsToFile(messageDetails);
+    await saveMessageDetailsToDatabase(messageDetails);
 
     let imageData = null;
     if (messageDetails.messageImage) {
@@ -294,18 +335,9 @@ async function processNewMessage(message) {
 
     if (MAX_QUEUE_SIZE > 0) {
         enqueueNewMessage(messageDetails);
-
         if (messageDetails.responses.length > 0) {
             enqueueResponseUpdate(messageDetails);
         }
-
-        // Commented out because of #26 (https://github.com/JensWinter/sags-uns-einfach-twitter-bot/issues/26)
-        /*
-        // Special handling when published message was already closed
-        if (messageDetails.status.toLowerCase() === 'closed') {
-            enqueueStatusUpdate(messageDetails);
-        }
-        */
     }
 
 }
@@ -315,24 +347,16 @@ async function processMessageUpdate(oldMessage) {
 
     const messageDetails = await fetchMessageDetails(oldMessage);
 
-    saveMessageDetails(messageDetails);
+    saveMessageDetailsToFile(messageDetails);
+    await saveMessageDetailsToDatabase(messageDetails);
 
     if (oldMessage.responses.length < messageDetails.responses.length) {
-        logger.info(`${messageDetails.responses.length - oldMessage.responses.length} new response(s) in message "${messageDetails.id}" `);
+        const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
+        logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
         if (MAX_QUEUE_SIZE > 0) {
             enqueueResponseUpdate(messageDetails);
         }
     }
-
-    // Commented out because of #26 (https://github.com/JensWinter/sags-uns-einfach-twitter-bot/issues/26)
-/*
-    if (oldMessage.status !== messageDetails.status) {
-        logger.info(`Status of message "${messageDetails.id}" changed from "${oldMessage.status}" to "${messageDetails.status}"`);
-        if (MAX_QUEUE_SIZE > 0) {
-            enqueueStatusUpdate(messageDetails);
-        }
-    }
-*/
 
 }
 
@@ -374,11 +398,43 @@ async function fetchMessageDetails(message) {
 }
 
 
-function saveMessageDetails(message) {
-    logger.info(`Archiving details for message "${message.id}"`);
+function saveMessageDetailsToFile(message) {
+    logger.info(`Saving details for message "${message.id}" to file`);
     const filename = `message-${message.id}.json`;
     const strMessage = JSON.stringify(message, null, 2);
     fs.writeFileSync(`${messagesDir}/${filename}`, strMessage);
+}
+
+
+async function saveMessageDetailsToDatabase(message) {
+    logger.info(`Saving details for message "${message.id}" to database`);
+    const location = getMessageLocation(message);
+    const doc = { ...message, tenantId, location };
+    await messagesCollection.replaceOne({ id: message.id }, doc, { upsert: true })
+}
+
+
+function getMessageLocation(message) {
+
+    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
+    const hasCoordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
+    let lat = null;
+    let long = null;
+    if (hasCoordinates) {
+        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
+        if (coordinateSystem === 'EPSG:25832') {
+            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
+            lat = destinationCoord[1];
+            long = destinationCoord[0];
+        } else {
+            lat = message.messagePosition.geoCoding.latitude;
+            long = message.messagePosition.geoCoding.longitude;
+        }
+        return [long, lat];
+    }
+
+    return null;
+
 }
 
 
@@ -439,17 +495,6 @@ function enqueueResponseUpdate(messageDetails) {
         fs.writeFileSync(`${queueResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
         logger.warn(`Didn't queue response update for message "${messageDetails.id}". Queue is full!`);
-    }
-}
-
-
-function enqueueStatusUpdate(messageDetails) {
-    const currentQueueSize = fs.readdirSync(queueStatusUpdatesDir).length;
-    if (currentQueueSize < MAX_QUEUE_SIZE) {
-        logger.info(`Saving status update for message "${messageDetails.id}" into status update queue`);
-        fs.writeFileSync(`${queueStatusUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
-    } else {
-        logger.warn(`Didn't queue status update for message "${messageDetails.id}". Queue is full!`);
     }
 }
 
