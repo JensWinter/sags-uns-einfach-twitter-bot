@@ -50,12 +50,14 @@ function initArgs() {
 async function importMessages() {
 
     const filenames = fs.readdirSync(path.join(directory, `${tenantId}`, 'messages'));
-    const documents = filenames.map(filename => {
-        const messageTxt = fs.readFileSync(path.join(directory, `${tenantId}`, 'messages', filename), 'utf-8');
-        const message = JSON.parse(messageTxt);
-        const location = getMessageLocation(message);
-        return { ...message, tenantId, location };
-    });
+    const documents = filenames
+        .filter(filename => filename.startsWith('message-') && filename.endsWith('.json'))
+        .map(filename => {
+            const messageTxt = fs.readFileSync(path.join(directory, `${tenantId}`, 'messages', filename), 'utf-8');
+            const message = JSON.parse(messageTxt);
+            const location = getMessageLocation(message);
+            return { ...message, tenantId, location };
+        });
     const insertOperations = documents.map(document => ({ insertOne: { document }}));
     const result = await messagesCollection.bulkWrite(insertOperations);
     console.log(`Added ${result.result.nInserted} message(s) to the database.`)
