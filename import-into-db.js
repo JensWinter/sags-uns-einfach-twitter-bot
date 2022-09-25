@@ -59,7 +59,11 @@ async function importMessages() {
             return { ...message, tenantId, location };
         });
     const insertOperations = documents.map(document => ({ insertOne: { document }}));
-    const result = await messagesCollection.bulkWrite(insertOperations);
-    console.log(`Added ${result.result.nInserted} message(s) to the database.`)
+    if (insertOperations.length > 0) {
+        const result = await messagesCollection.bulkWrite(insertOperations);
+        console.log(`Added ${result.result.nInserted} message(s) to the database.`)
+    } else {
+        console.log('No documents to import');
+    }
 
 }
