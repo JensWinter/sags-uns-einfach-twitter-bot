@@ -6,6 +6,7 @@ const winston = require('winston');
 const dateFns = require('date-fns');
 const { MongoClient } = require('mongodb');
 const { getMessageLocation } = require('./get-location');
+const AWS = require('aws-sdk');
 
 require('dotenv').config();
 const config = initArgs();
@@ -44,6 +45,12 @@ const DATABASE_NAME = process.env.DATABASE_NAME;
 const mongoClient = new MongoClient(DATABASE_URL);
 const db = mongoClient.db(DATABASE_NAME);
 const messagesCollection = db.collection('messages');
+
+
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
+});
 
 
 logger.info('Run initiated.')
@@ -314,9 +321,15 @@ async function processNewMessage(message) {
         }
 
         try {
-            await saveImage(messageDetails, imageData);
+            await saveImageToFile(messageDetails, imageData);
         } catch (e) {
-            return logFailedImageSave(e);
+            return logFailedImageFileSave(e);
+        }
+
+        try {
+            await saveImageToS3(messageDetails, imageData);
+        } catch (e) {
+            return logFailedImageS3Save(e);
         }
 
     }
@@ -432,12 +445,25 @@ async function fetchImage(messageDetails) {
 }
 
 
-function saveImage(messageDetails, imageDataBuffer) {
-    logger.info(`Saving image of message "${messageDetails.id}"`);
+function saveImageToFile(messageDetails, imageDataBuffer) {
+    logger.info(`Saving image of message "${messageDetails.id}" to file`);
     const mimeType = messageDetails.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
     const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
     fs.writeFileSync(filename, imageDataBuffer);
+}
+
+
+async function saveImageToS3(messageDetails, imageDataBuffer) {
+    logger.info(`Saving image of message "${messageDetails.id}" to S3`);
+    const mimeType = messageDetails.messageImage.mimeType;
+    const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
+    const filename = `${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    return s3.upload({
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: `tenants/${tenantId}/images/${filename}`,
+        Body: imageDataBuffer,
+    }).promise();
 }
 
 
@@ -522,8 +548,17 @@ function logFailedImageFetch(errorMessage) {
 }
 
 
-function logFailedImageSave(errorMessage) {
-    const text = `Saving image failed: ${errorMessage}`;
+function logFailedImageFileSave(errorMessage) {
+    const text = `Saving image to file failed: ${errorMessage}`;
+    logger.error(text)
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    }
+}
+
+
+function logFailedImageS3Save(errorMessage) {
+    const text = `Saving image to S3 failed: ${errorMessage}`;
     logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);

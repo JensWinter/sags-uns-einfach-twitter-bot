@@ -124,8 +124,9 @@ config.production.json
 config.test.json
 
 archive/
-/tenants/*/images/
-/tenants/*/messages/
-/tenants/*/queue_new_messages/
-/tenants/*/queue_response_updates/
-/tenants/*/queue_status_updates/
+tenants/*/images/
+tenants/*/messages/
+tenants/*/queue_new_messages/
+tenants/*/queue_response_updates/
+tenants/*/queue_status_updates/
+tenants/*/tweets/
