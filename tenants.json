@@ -515,7 +515,7 @@
         "tenant_id": 24,
         "id": 333046511,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/333046511/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/333046511",
         "status": "3 - online"
       },
       "sueV2": null
@@ -683,7 +683,7 @@
         "tenant_id": 32,
         "id": 347927245,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/347927245/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/347927245",
         "status": "3 - online"
       },
       "sueV2": null
@@ -711,7 +711,7 @@
         "tenant_id": 34,
         "id": 394683992,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/394683992/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/394683992",
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
@@ -816,7 +816,7 @@
         "tenant_id": 40,
         "id": 334820982,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/334820982/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/334820982",
         "status": "3 - online"
       },
       "sueV2": null
@@ -872,7 +872,7 @@
         "tenant_id": 47,
         "id": 322702653,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/322702653/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/322702653",
         "status": "3 - online"
       },
       "sueV2": null
@@ -900,7 +900,7 @@
         "tenant_id": 48,
         "id": 343337872,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343337872/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/343337872",
         "status": "3 - online"
       },
       "sueV2": null
@@ -928,7 +928,7 @@
         "tenant_id": 49,
         "id": 341201998,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/341201998/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/341201998",
         "status": "3 - online"
       },
       "sueV2": null
@@ -956,7 +956,7 @@
         "tenant_id": 52,
         "id": 351779008,
         "system": "he",
-        "url": "http://include-he.zfinder.de/mobileportalpms/351779008/",
+        "url": "http://include-he.zfinder.de/mobileportalpms/351779008",
         "status": "3 - online"
       },
       "sueV2": null
@@ -984,7 +984,7 @@
         "tenant_id": 53,
         "id": 343472229,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343472229/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/343472229",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1012,7 +1012,7 @@
         "tenant_id": 54,
         "id": 345073887,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343472229/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/343472229",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1068,7 +1068,7 @@
         "tenant_id": 57,
         "id": 346555433,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/346555433/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/346555433",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1096,7 +1096,7 @@
         "tenant_id": 58,
         "id": 347074045,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/347074045/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/347074045",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1124,7 +1124,7 @@
         "tenant_id": 59,
         "id": 357015643,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/357015643/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/357015643",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1152,7 +1152,7 @@
         "tenant_id": 61,
         "id": 371367221,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/359805508/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/359805508",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1180,7 +1180,7 @@
         "tenant_id": 62,
         "id": 359805508,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/359805508/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/359805508",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1208,7 +1208,7 @@
         "tenant_id": 63,
         "id": 340312162,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/340312162/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/340312162",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1236,7 +1236,7 @@
         "tenant_id": 64,
         "id": 363527099,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/363527099/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/363527099",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1264,7 +1264,7 @@
         "tenant_id": 65,
         "id": 364026281,
         "system": "st",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1312,7 +1312,7 @@
         "tenant_id": 67,
         "id": 372165719,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1340,7 +1340,7 @@
         "tenant_id": 68,
         "id": 375368222,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/375368222/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/375368222",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1368,7 +1368,7 @@
         "tenant_id": 69,
         "id": 357398280,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/357398280/",
+        "url": "https://include-he.zfinder.de/mobileportalpms/357398280",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1396,7 +1396,7 @@
         "tenant_id": 71,
         "id": 358205940,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/358205940/",
+        "url": "https://include-he.zfinder.de/mobileportalpms/358205940",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1424,7 +1424,7 @@
         "tenant_id": 72,
         "id": 377293617,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/377293617/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/377293617",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1452,7 +1452,7 @@
         "tenant_id": 75,
         "id": 379930241,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/379930241/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/379930241",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1480,7 +1480,7 @@
         "tenant_id": 78,
         "id": 357687425,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/357687425/",
+        "url": "https://include-he.zfinder.de/mobileportalpms/357687425",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1548,7 +1548,7 @@
         "tenant_id": 82,
         "id": 384699736,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/384699736/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/384699736",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1576,7 +1576,7 @@
         "tenant_id": 83,
         "id": 384235328,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/384235328/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/384235328",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1604,7 +1604,7 @@
         "tenant_id": 84,
         "id": 387477806,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/387477806/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/387477806",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1653,7 +1653,7 @@
         "tenant_id": 88,
         "id": 382592859,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/382592859/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/382592859",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1681,7 +1681,7 @@
         "tenant_id": 89,
         "id": 384327086,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/384327086/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/384327086",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1709,7 +1709,7 @@
         "tenant_id": 91,
         "id": 383005984,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/383005984/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/383005984",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1737,7 +1737,7 @@
         "tenant_id": 92,
         "id": 409206934,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/409206934/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/409206934",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1765,7 +1765,7 @@
         "tenant_id": 93,
         "id": 387092504,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/387092504/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/387092504",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1793,7 +1793,7 @@
         "tenant_id": 94,
         "id": 398735820,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/398735820/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/398735820",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1821,7 +1821,7 @@
         "tenant_id": 95,
         "id": 404396155,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/404396155/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/404396155",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1849,7 +1849,7 @@
         "tenant_id": 96,
         "id": 388351656,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/388351656/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/388351656",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1877,7 +1877,7 @@
         "tenant_id": 98,
         "id": 399954033,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/399954033/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/399954033",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1905,7 +1905,7 @@
         "tenant_id": 99,
         "id": 402634668,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/402634668/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/402634668",
         "status": "3 - online"
       },
       "sueV2": null
@@ -1954,7 +1954,7 @@
         "tenant_id": 102,
         "id": 423602917,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/423602917/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/423602917",
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
@@ -1982,7 +1982,7 @@
         "tenant_id": 103,
         "id": 420890532,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/420890532/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/420890532",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2030,7 +2030,7 @@
         "tenant_id": 107,
         "id": 391500186,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/391500186/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/391500186",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2058,7 +2058,7 @@
         "tenant_id": 108,
         "id": 389991183,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/389991183/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/389991183",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2127,7 +2127,7 @@
         "tenant_id": 111,
         "id": 431347419,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/431347419/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/431347419",
         "status": "3 - Online"
       },
       "sueV2": null
@@ -2197,7 +2197,7 @@
         "tenant_id": 114,
         "id": 435533408,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/435533408/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/435533408",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2225,7 +2225,7 @@
         "tenant_id": 115,
         "id": 374537072,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/374537072/",
+        "url": "https://include-he.zfinder.de/mobileportalpms/374537072",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2274,7 +2274,7 @@
         "tenant_id": 117,
         "id": 393598852,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/393598852/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/393598852",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2322,7 +2322,7 @@
         "tenant_id": 119,
         "id": 394250400,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/394250400/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/394250400",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2433,7 +2433,7 @@
         "tenant_id": 124,
         "id": 449969883,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/449969883/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/449969883",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2461,7 +2461,7 @@
         "tenant_id": 125,
         "id": 451677299,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/451677299/",
+        "url": "https://include-ni.zfinder.de/mobileportalpms/451677299",
         "status": "3 - online"
       },
       "sueV2": null
@@ -2507,7 +2507,7 @@
         "tenant_id": 9999,
         "id": 370258077,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/370258077/",
+        "url": "https://include-st.zfinder.de/mobileportalpms/370258077",
         "status": "REMOVED"
       },
       "sueV2": null
