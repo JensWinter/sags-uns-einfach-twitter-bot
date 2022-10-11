@@ -875,7 +875,7 @@
   },
   {
     "name": "Stadt Bad Fallingbostel",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       52.8675,
@@ -1026,7 +1026,7 @@
   },
   {
     "name": "Stadt Soltau",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       52.9859,
@@ -1044,7 +1044,7 @@
   },
   {
     "name": "Main-Taunus-Kreis",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       50.079583,
@@ -1385,7 +1385,7 @@
   },
   {
     "name": "Landeshauptstadt Kiel",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       54.32321,
@@ -1460,7 +1460,7 @@
   },
   {
     "name": "Gemeinde Bienenbüttel",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       53.143333,
@@ -1611,7 +1611,7 @@
   },
   {
     "name": "Gemeinde Bösel",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       53.005833,
@@ -1667,7 +1667,7 @@
   },
   {
     "name": "Gemeinde Hasselroth",
-    "type": "sue_v2",
+    "type": "sueV2",
     "active": false,
     "location": [
       50.166667,
