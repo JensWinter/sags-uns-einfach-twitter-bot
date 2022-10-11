@@ -2,7 +2,6 @@
   {
     "name": "Stadt Gifhorn",
     "type": "sue",
-    "active": true,
     "location": [
       52.480909,
       10.550783
@@ -16,12 +15,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Goslar",
     "type": "sue",
-    "active": true,
     "location": [
       51.905953,
       10.428996
@@ -35,12 +43,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Halle (Saale)",
     "type": "sue",
-    "active": true,
     "location": [
       51.49698,
       11.968803
@@ -54,12 +71,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Landeshauptstadt Magdeburg",
     "type": "sue",
-    "active": true,
     "location": [
       52.120533,
       11.627624
@@ -73,12 +99,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 50,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Schkopau",
     "type": "sue",
-    "active": true,
     "location": [
       51.390075,
       11.985151
@@ -92,12 +127,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Mücheln",
     "type": "sue",
-    "active": true,
     "location": [
       51.303841,
       11.813612
@@ -111,12 +155,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Wolmirstedt",
     "type": "sue",
-    "active": true,
     "location": [
       52.252137,
       11.629014
@@ -130,12 +183,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Genthin",
     "type": "sue",
-    "active": true,
     "location": [
       52.400622,
       12.160153
@@ -149,12 +211,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bad Soden im Taunus",
     "type": "sue",
-    "active": true,
     "location": [
       50.143406,
       8.504128
@@ -168,12 +239,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Celle",
     "type": "sue",
-    "active": true,
     "location": [
       52.617596,
       10.062851
@@ -187,12 +267,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Bardowick",
     "type": "sue",
-    "active": true,
     "location": [
       53.295283,
       10.387129
@@ -206,12 +295,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Einheitsgemeinde Walsrode",
     "type": "sue",
-    "active": true,
     "location": [
       52.861732,
       9.593092
@@ -225,12 +323,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Landkreis Heidekreis",
     "type": "sue",
-    "active": true,
     "location": [
       53.066498,
       9.882525
@@ -244,12 +351,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Einheitsgemeinde Gommern",
     "type": "sue",
-    "active": true,
     "location": [
       52.074879,
       11.823553
@@ -263,12 +379,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Springe",
     "type": "sue",
-    "active": true,
     "location": [
       52.21079,
       9.553146
@@ -282,12 +407,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Wettin-Löbejün",
     "type": "sue",
-    "active": true,
     "location": [
       51.633333,
       11.9
@@ -301,12 +435,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Calbe (Saale)",
     "type": "sue",
-    "active": true,
     "location": [
       51.903333,
       11.775833
@@ -320,12 +463,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Wernigerode",
     "type": "sue",
-    "active": true,
     "location": [
       51.836811,
       10.784427
@@ -339,12 +491,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Coswig (Anhalt)",
     "type": "sue",
-    "active": true,
     "location": [
       51.883333,
       12.433333
@@ -358,12 +519,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Hecklingen",
     "type": "sue",
-    "active": true,
     "location": [
       51.847304,
       11.534633
@@ -377,12 +547,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Tangerhütte",
     "type": "sue",
-    "active": true,
     "location": [
       52.434007,
       11.810569
@@ -396,12 +575,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Gardelegen",
     "type": "sue",
-    "active": true,
     "location": [
       52.526838,
       11.401836
@@ -415,12 +603,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Laatzen",
     "type": "sue",
-    "active": true,
     "location": [
       52.308244,
       9.808619
@@ -434,12 +631,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Verbandsgemeinde Beetzendorf-Diesdorf",
     "type": "sue",
-    "active": true,
     "location": [
       52.702722,
       11.090144
@@ -453,12 +659,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Haldensleben",
     "type": "sue",
-    "active": true,
     "location": [
       52.284424,
       11.418149
@@ -472,12 +687,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bad Dürrenberg",
     "type": "sue",
-    "active": true,
     "location": [
       51.299506,
       12.069876
@@ -491,12 +715,21 @@
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Schönebeck",
     "type": "sue",
-    "active": true,
     "location": [
       52.009144,
       11.747048
@@ -510,12 +743,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Bomlitz",
     "type": "sue",
-    "active": false,
     "location": [
       52.904691,
       9.658249
@@ -529,12 +771,14 @@
         "status": "4 - Zusammenlegung mit Walsrode"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Stadt Bassum",
     "type": "sue",
-    "active": true,
     "location": [
       52.850575,
       8.728671
@@ -548,12 +792,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Uelzen",
     "type": "sue",
-    "active": true,
     "location": [
       52.96582,
       10.55803
@@ -567,12 +820,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Adendorf",
     "type": "sue",
-    "active": true,
     "location": [
       53.285806,
       10.44831
@@ -586,12 +848,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Munster",
     "type": "sue",
-    "active": true,
     "location": [
       52.988761,
       10.088848
@@ -605,12 +876,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Barleben",
     "type": "sue",
-    "active": true,
     "location": [
       52.201929,
       11.617699
@@ -624,12 +904,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Dahlenburg",
     "type": "sue",
-    "active": true,
     "location": [
       53.2008589,
       10.6341266
@@ -643,12 +932,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Limburg an der Lahn",
     "type": "sue",
-    "active": true,
     "location": [
       50.4014174,
       8.0353565
@@ -662,12 +960,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Muldestausee",
     "type": "sue",
-    "active": true,
     "location": [
       51.6487373,
       12.350941
@@ -681,12 +988,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Zeitz",
     "type": "sue",
-    "active": true,
     "location": [
       51.0510041,
       12.1183115
@@ -700,12 +1016,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Querfurt",
     "type": "sue",
-    "active": false,
     "location": [
       51.3514027,
       11.4294588
@@ -719,12 +1044,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Oschersleben (Bode)",
     "type": "sue",
-    "active": true,
     "location": [
       52.0324251,
       11.1994279
@@ -738,12 +1072,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Halberstadt",
     "type": "sue",
-    "active": true,
     "location": [
       51.8986562,
       11.0018046
@@ -757,12 +1100,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Verbandsgemeinde Westliche Börde",
     "type": "sue",
-    "active": true,
     "location": [
       51.9333453,
       11.207912
@@ -776,12 +1128,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Einheitsgemeinde Biederitz",
     "type": "sue",
-    "active": true,
     "location": [
       52.150415,
       11.69281
@@ -795,12 +1156,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Oranienbaum-Wörlitz",
     "type": "sue",
-    "active": true,
     "location": [
       51.829691,
       12.338495
@@ -814,12 +1184,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Lüneburg",
     "type": "sue",
-    "active": true,
     "location": [
       53.239136,
       10.352599
@@ -833,12 +1212,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Zerbst/Anhalt",
     "type": "sue",
-    "active": true,
     "location": [
       51.968055,
       12.084444
@@ -852,12 +1240,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bitterfeld-Wolfen",
     "type": "sue",
-    "active": true,
     "location": [
       51.625,
       12.324722
@@ -871,12 +1268,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bad Fallingbostel",
     "type": "sueV2",
-    "active": false,
     "location": [
       52.8675,
       9.696667
@@ -889,12 +1295,14 @@
         "system": "ni",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Samtgemeinde Bevensen-Ebstorf",
     "type": "sue",
-    "active": true,
     "location": [
       53.066667,
       10.533333
@@ -908,12 +1316,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Nordenham",
     "type": "sue",
-    "active": true,
     "location": [
       53.484722,
       8.483889
@@ -927,12 +1344,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Kriftel",
     "type": "sue",
-    "active": true,
     "location": [
       50.082778,
       8.466667
@@ -946,12 +1372,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Freigericht",
     "type": "sue",
-    "active": true,
     "location": [
       50.138611,
       9.133889
@@ -965,12 +1400,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Suderburg",
     "type": "sue",
-    "active": true,
     "location": [
       52.900717,
       10.439089
@@ -984,12 +1428,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Ilmenau",
     "type": "sue",
-    "active": true,
     "location": [
       53.180649,
       10.401129
@@ -1003,12 +1456,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Nauheim",
     "type": "sue",
-    "active": true,
     "location": [
       49.944653,
       8.454792
@@ -1022,12 +1484,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Soltau",
     "type": "sueV2",
-    "active": false,
     "location": [
       52.9859,
       9.8433
@@ -1040,12 +1511,14 @@
         "system": "ni",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Main-Taunus-Kreis",
     "type": "sueV2",
-    "active": false,
     "location": [
       50.079583,
       8.449583
@@ -1058,12 +1531,14 @@
         "system": "he",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Samtgemeinde Gartow",
     "type": "sue",
-    "active": true,
     "location": [
       53.023889,
       11.4575
@@ -1077,12 +1552,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Ostheide",
     "type": "sue",
-    "active": true,
     "location": [
       53.233333,
       10.516667
@@ -1096,12 +1580,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Schwarmstedt",
     "type": "sue",
-    "active": true,
     "location": [
       52.666667,
       9.616667
@@ -1115,12 +1608,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Arendsee",
     "type": "sue",
-    "active": false,
     "location": [
       52.889167,
       11.474167
@@ -1134,12 +1636,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Lutherstadt Wittenberg",
     "type": "sue",
-    "active": true,
     "location": [
       51.866667,
       12.643333
@@ -1153,12 +1657,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bad Schmiedeberg",
     "type": "sue",
-    "active": true,
     "location": [
       51.688056,
       12.7375
@@ -1172,12 +1685,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Hansestadt Salzwedel",
     "type": "sue",
-    "active": true,
     "location": [
       52.85,
       11.15
@@ -1191,12 +1713,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Lemwerder",
     "type": "sue",
-    "active": true,
     "location": [
       53.166667,
       8.616667
@@ -1210,12 +1741,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Annaburg",
     "type": "sue",
-    "active": true,
     "location": [
       51.732778,
       13.045556
@@ -1229,12 +1769,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Hansestadt Buxtehude",
     "type": "sue",
-    "active": true,
     "location": [
       53.47693,
       9.70141
@@ -1248,12 +1797,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Bleckede",
     "type": "sue",
-    "active": true,
     "location": [
       53.2874,
       10.732
@@ -1267,12 +1825,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Oberharz am Brocken",
     "type": "sue",
-    "active": true,
     "location": [
       51.716667,
       10.816667
@@ -1286,12 +1853,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Amelinghausen",
     "type": "sue",
-    "active": true,
     "location": [
       53.126667,
       10.214722
@@ -1305,12 +1881,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Stadland",
     "type": "sue",
-    "active": true,
     "location": [
       53.424722,
       8.374167
@@ -1324,12 +1909,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Bispingen",
     "type": "sue",
-    "active": false,
     "location": [
       53.082778,
       9.998333
@@ -1343,12 +1937,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Garrel",
     "type": "sue",
-    "active": true,
     "location": [
       52.958056,
       8.025278
@@ -1362,12 +1958,21 @@
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Weyhe",
     "type": "sue",
-    "active": true,
     "location": [
       52.990833,
       8.840833
@@ -1381,12 +1986,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Landeshauptstadt Kiel",
     "type": "sueV2",
-    "active": false,
     "location": [
       54.32321,
       10.14019
@@ -1399,12 +2013,14 @@
         "system": "sh",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Hansestadt Osterburg (Altmark)",
     "type": "sue",
-    "active": true,
     "location": [
       52.78994,
       11.75256
@@ -1418,12 +2034,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Verbandsgemeinde Arneburg-Goldbeck",
     "type": "sue",
-    "active": true,
     "location": [
       52.716667,
       11.85
@@ -1437,12 +2062,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Eppstein",
     "type": "sue",
-    "active": false,
     "location": [
       50.140139,
       8.392014
@@ -1456,12 +2090,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Bienenbüttel",
     "type": "sueV2",
-    "active": false,
     "location": [
       53.143333,
       10.490278
@@ -1474,12 +2110,14 @@
         "system": "ni",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Amt Neuhaus",
     "type": "sue",
-    "active": true,
     "location": [
       53.2859,
       10.92847
@@ -1493,12 +2131,21 @@
         "status": "3 - Online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Elz (Westerwald)",
     "type": "sue",
-    "active": false,
     "location": [
       50.416667,
       8.033333
@@ -1512,12 +2159,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Stadt Geestland",
     "type": "sue",
-    "active": false,
     "location": [
       53.63125,
       8.750806
@@ -1531,12 +2180,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Wardenburg",
     "type": "sue",
-    "active": true,
     "location": [
       53.061667,
       8.196667
@@ -1550,12 +2201,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Grünberg",
     "type": "sue",
-    "active": true,
     "location": [
       50.591095,
       8.960119
@@ -1569,12 +2229,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-he.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Brake (Unterweser)",
     "type": "sue",
-    "active": false,
     "location": [
       53.338064,
       8.481
@@ -1588,12 +2257,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Huy",
     "type": "sue",
-    "active": true,
     "location": [
       51.998333,
       10.966667
@@ -1607,12 +2278,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Gemeinde Bösel",
     "type": "sueV2",
-    "active": false,
     "location": [
       53.005833,
       7.954167
@@ -1625,12 +2305,14 @@
         "system": "ni",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Stadt Aschersleben",
     "type": "sue",
-    "active": true,
     "location": [
       51.755556,
       11.455556
@@ -1644,12 +2326,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Hansestadt Seehausen (Altmark)",
     "type": "sue",
-    "active": false,
     "location": [
       52.890278,
       11.753056
@@ -1663,12 +2354,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Gemeinde Hasselroth",
     "type": "sueV2",
-    "active": false,
     "location": [
       50.166667,
       9.1
@@ -1681,12 +2374,14 @@
         "system": "he",
         "status": "3 - online"
       }
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Samtgemeinde Hemmoor",
     "type": "sue",
-    "active": false,
     "location": [
       53.7,
       9.116667
@@ -1700,12 +2395,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Samtgemeinde Harpstedt",
     "type": "sue",
-    "active": false,
     "location": [
       52.9,
       8.583333
@@ -1719,12 +2416,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Stadt Northeim",
     "type": "sue",
-    "active": true,
     "location": [
       51.70602,
       10.00022
@@ -1738,12 +2437,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Samtgemeinde Gellersen",
     "type": "sue",
-    "active": true,
     "location": [
       53.247778,
       10.352778
@@ -1757,12 +2465,21 @@
         "status": "3 - online"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": true,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Erbach",
     "type": "sue",
-    "active": false,
     "location": [
       49.656944,
       8.993056
@@ -1776,12 +2493,14 @@
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false
     }
   },
   {
     "name": "Stadt Landsberg",
     "type": "sue",
-    "active": false,
     "location": null,
     "providers": {
       "sue": {
@@ -1792,12 +2511,21 @@
         "status": "REMOVED"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false,
+      "baseUrl": "https://include-st.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   },
   {
     "name": "Stadt Syke",
     "type": "sue",
-    "active": false,
     "location": null,
     "providers": {
       "sue": {
@@ -1808,6 +2536,16 @@
         "status": "REMOVED"
       },
       "sueV2": null
+    },
+    "config": {
+      "active": false,
+      "baseUrl": "https://include-ni.zfinder.de",
+      "limitMessagesFetch": 500,
+      "processDelaySeconds": 10,
+      "maxQueueSize": 0,
+      "tweetWithImage": true,
+      "logToSlackChannel": true,
+      "archiveOldMessages": true
     }
   }
 ]
