@@ -11,14 +11,12 @@
         "tenant_id": 1,
         "id": 314181900,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/314181900",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -39,14 +37,12 @@
         "tenant_id": 2,
         "id": 307091000,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/307091000",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -67,14 +63,12 @@
         "tenant_id": 3,
         "id": 266802600,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/266802600",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -95,14 +89,12 @@
         "tenant_id": 4,
         "id": 286585400,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/286585400",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 50,
@@ -123,14 +115,12 @@
         "tenant_id": 5,
         "id": 288025400,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/288025400",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -151,14 +141,12 @@
         "tenant_id": 6,
         "id": 317057000,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/317057000",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -179,14 +167,12 @@
         "tenant_id": 7,
         "id": 309794300,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/309794300",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -207,14 +193,12 @@
         "tenant_id": 8,
         "id": 268421200,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/268421200",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -235,14 +219,12 @@
         "tenant_id": 9,
         "id": 348111492,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/348111492",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -263,14 +245,12 @@
         "tenant_id": 10,
         "id": 320331702,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/320331702",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -291,14 +271,12 @@
         "tenant_id": 12,
         "id": 320331706,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/320331706",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -319,14 +297,12 @@
         "tenant_id": 13,
         "id": 320331707,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/320331707",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -347,14 +323,12 @@
         "tenant_id": 15,
         "id": 319680800,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/319680800",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -375,14 +349,12 @@
         "tenant_id": 16,
         "id": 333316582,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/333316582",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -403,14 +375,12 @@
         "tenant_id": 17,
         "id": 320331710,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/320331710",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -431,14 +401,12 @@
         "tenant_id": 19,
         "id": 332773732,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/332773732",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -459,14 +427,12 @@
         "tenant_id": 20,
         "id": 334569130,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/334569130",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -487,14 +453,12 @@
         "tenant_id": 22,
         "id": 332342630,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/332342630",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -515,14 +479,12 @@
         "tenant_id": 24,
         "id": 333046511,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/333046511",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -543,14 +505,12 @@
         "tenant_id": 25,
         "id": 339280444,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/339280444",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -571,14 +531,12 @@
         "tenant_id": 26,
         "id": 337219045,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/337219045",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -599,14 +557,12 @@
         "tenant_id": 27,
         "id": 341435570,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/341435570",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -627,14 +583,12 @@
         "tenant_id": 28,
         "id": 320598524,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/320598524",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -655,14 +609,12 @@
         "tenant_id": 31,
         "id": 340246041,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/340246041",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -683,14 +635,12 @@
         "tenant_id": 32,
         "id": 347927245,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/347927245",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -711,14 +661,12 @@
         "tenant_id": 34,
         "id": 394683992,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/394683992",
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -739,14 +687,12 @@
         "tenant_id": 37,
         "id": 341255014,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/341255014",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -767,7 +713,6 @@
         "tenant_id": 38,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "4 - Zusammenlegung mit Walsrode"
       },
       "sueV2": null
@@ -788,14 +733,12 @@
         "tenant_id": 39,
         "id": 329182136,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/329182136",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -816,14 +759,12 @@
         "tenant_id": 40,
         "id": 334820982,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/334820982",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -844,14 +785,12 @@
         "tenant_id": 42,
         "id": 336819411,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/336819411",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -872,14 +811,12 @@
         "tenant_id": 47,
         "id": 322702653,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/322702653",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -900,14 +837,12 @@
         "tenant_id": 48,
         "id": 343337872,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343337872",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -928,14 +863,12 @@
         "tenant_id": 49,
         "id": 341201998,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/341201998",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -956,14 +889,12 @@
         "tenant_id": 52,
         "id": 351779008,
         "system": "he",
-        "url": "http://include-he.zfinder.de/mobileportalpms/351779008",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -984,14 +915,12 @@
         "tenant_id": 53,
         "id": 343472229,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343472229",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1012,14 +941,12 @@
         "tenant_id": 54,
         "id": 345073887,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/343472229",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1040,14 +967,12 @@
         "tenant_id": 55,
         "id": 347181261,
         "system": "st",
-        "url": "https://include-st.zfinder.de/347181261",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": false,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1068,14 +993,12 @@
         "tenant_id": 57,
         "id": 346555433,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/346555433",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1096,14 +1019,12 @@
         "tenant_id": 58,
         "id": 347074045,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/347074045",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1124,14 +1045,12 @@
         "tenant_id": 59,
         "id": 357015643,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/357015643",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1152,14 +1071,12 @@
         "tenant_id": 61,
         "id": 371367221,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/359805508",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1180,14 +1097,12 @@
         "tenant_id": 62,
         "id": 359805508,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/359805508",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1208,14 +1123,12 @@
         "tenant_id": 63,
         "id": 340312162,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/340312162",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1236,14 +1149,12 @@
         "tenant_id": 64,
         "id": 363527099,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/363527099",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1264,14 +1175,12 @@
         "tenant_id": 65,
         "id": 364026281,
         "system": "st",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1312,14 +1221,12 @@
         "tenant_id": 67,
         "id": 372165719,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/372165719",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1340,14 +1247,12 @@
         "tenant_id": 68,
         "id": 375368222,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/375368222",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1368,14 +1273,12 @@
         "tenant_id": 69,
         "id": 357398280,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/357398280",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1396,14 +1299,12 @@
         "tenant_id": 71,
         "id": 358205940,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/358205940",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1424,14 +1325,12 @@
         "tenant_id": 72,
         "id": 377293617,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/377293617",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1452,14 +1351,12 @@
         "tenant_id": 75,
         "id": 379930241,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/379930241",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1480,14 +1377,12 @@
         "tenant_id": 78,
         "id": 357687425,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/357687425",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1548,14 +1443,12 @@
         "tenant_id": 82,
         "id": 384699736,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/384699736",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1576,14 +1469,12 @@
         "tenant_id": 83,
         "id": 384235328,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/384235328",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1604,14 +1495,12 @@
         "tenant_id": 84,
         "id": 387477806,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/387477806",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1632,7 +1521,6 @@
         "tenant_id": 87,
         "id": null,
         "system": "st",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -1653,14 +1541,12 @@
         "tenant_id": 88,
         "id": 382592859,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/382592859",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1681,14 +1567,12 @@
         "tenant_id": 89,
         "id": 384327086,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/384327086",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1709,14 +1593,12 @@
         "tenant_id": 91,
         "id": 383005984,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/383005984",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1737,14 +1619,12 @@
         "tenant_id": 92,
         "id": 409206934,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/409206934",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1765,14 +1645,12 @@
         "tenant_id": 93,
         "id": 387092504,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/387092504",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1793,14 +1671,12 @@
         "tenant_id": 94,
         "id": 398735820,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/398735820",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1821,14 +1697,12 @@
         "tenant_id": 95,
         "id": 404396155,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/404396155",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1849,14 +1723,12 @@
         "tenant_id": 96,
         "id": 388351656,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/388351656",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1877,14 +1749,12 @@
         "tenant_id": 98,
         "id": 399954033,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/399954033",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1905,14 +1775,12 @@
         "tenant_id": 99,
         "id": 402634668,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/402634668",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1933,7 +1801,6 @@
         "tenant_id": 101,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -1954,14 +1821,12 @@
         "tenant_id": 102,
         "id": 423602917,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/423602917",
         "status": "2 - in Umsetzung"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -1982,14 +1847,12 @@
         "tenant_id": 103,
         "id": 420890532,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/420890532",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2030,14 +1893,12 @@
         "tenant_id": 107,
         "id": 391500186,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/391500186",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2058,14 +1919,12 @@
         "tenant_id": 108,
         "id": 389991183,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/389991183",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2086,7 +1945,6 @@
         "tenant_id": 109,
         "id": null,
         "system": "he",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2127,14 +1985,12 @@
         "tenant_id": 111,
         "id": 431347419,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/431347419",
         "status": "3 - Online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2155,7 +2011,6 @@
         "tenant_id": 112,
         "id": null,
         "system": "he",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2176,7 +2031,6 @@
         "tenant_id": 113,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2197,14 +2051,12 @@
         "tenant_id": 114,
         "id": 435533408,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/435533408",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2225,14 +2077,12 @@
         "tenant_id": 115,
         "id": 374537072,
         "system": "he",
-        "url": "https://include-he.zfinder.de/mobileportalpms/374537072",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-he.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2253,7 +2103,6 @@
         "tenant_id": 116,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2274,14 +2123,12 @@
         "tenant_id": 117,
         "id": 393598852,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/393598852",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2322,14 +2169,12 @@
         "tenant_id": 119,
         "id": 394250400,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/394250400",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2350,7 +2195,6 @@
         "tenant_id": 120,
         "id": null,
         "system": "st",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2391,7 +2235,6 @@
         "tenant_id": 122,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2412,7 +2255,6 @@
         "tenant_id": 123,
         "id": null,
         "system": "ni",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2433,14 +2275,12 @@
         "tenant_id": 124,
         "id": 449969883,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/449969883",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2461,14 +2301,12 @@
         "tenant_id": 125,
         "id": 451677299,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/451677299",
         "status": "3 - online"
       },
       "sueV2": null
     },
     "config": {
       "active": true,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2489,7 +2327,6 @@
         "tenant_id": 126,
         "id": null,
         "system": "he",
-        "url": null,
         "status": "1 - Kickoff / Vorstellung Funktionsportfolio"
       },
       "sueV2": null
@@ -2507,14 +2344,12 @@
         "tenant_id": 9999,
         "id": 370258077,
         "system": "st",
-        "url": "https://include-st.zfinder.de/mobileportalpms/370258077",
         "status": "REMOVED"
       },
       "sueV2": null
     },
     "config": {
       "active": false,
-      "baseUrl": "https://include-st.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,
@@ -2532,14 +2367,12 @@
         "tenant_id": 9999,
         "id": 332144900,
         "system": "ni",
-        "url": "https://include-ni.zfinder.de/mobileportalpms/332144900",
         "status": "REMOVED"
       },
       "sueV2": null
     },
     "config": {
       "active": false,
-      "baseUrl": "https://include-ni.zfinder.de",
       "limitMessagesFetch": 500,
       "processDelaySeconds": 10,
       "maxQueueSize": 0,

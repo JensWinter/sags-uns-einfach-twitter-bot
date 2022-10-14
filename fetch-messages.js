@@ -17,7 +17,7 @@ if (!tenant) {
 
 const tenantName = tenant.name;
 const tenantId = tenant.id;
-const baseUrl = tenant.config.baseUrl;
+const baseUrl = `https://include-${tenant.system}.zfinder.de`;
 const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenantId}`;
 
 const tenantsDir = './tenants';
@@ -91,6 +91,7 @@ function initArgs() {
                 return {
                     name: tenant.name,
                     id: tenant.providers.sue.id,
+                    system: tenant.providers.sue.system,
                     config: tenant.config
                 };
             }
