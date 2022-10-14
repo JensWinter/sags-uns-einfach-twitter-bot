@@ -9,12 +9,16 @@ const { getMessageLocation } = require('./get-location');
 const AWS = require('aws-sdk');
 
 require('dotenv').config();
-const config = initArgs();
+const tenant = initArgs();
+if (!tenant) {
+    console.error('Couldn\'t load tenant configuration.');
+    process.exit(1);
+}
 
-const tenantName = config.tenantName;
-const tenantId = config.tenantId;
-const baseUrl = config.baseUrl;
-const tenantBaseUrl = `${baseUrl}/mobileportalpms/${config.tenantId}`;
+const tenantName = tenant.name;
+const tenantId = tenant.id;
+const baseUrl = `https://include-${tenant.system}.zfinder.de`;
+const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenantId}`;
 
 const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantId}`;
@@ -31,11 +35,11 @@ const archiveMessagesDir = `${tenantArchiveDir}/messages`;
 
 const logger = initLogger();
 
-const LIMIT_MESSAGES_FETCH = config.limitMessagesFetch;
-const PROCESS_DELAY_SECONDS = config.processDelaySeconds;
-const MAX_QUEUE_SIZE = config.maxQueueSize;
-const LOG_TO_SLACK_CHANNEL = config.logToSlackChannel;
-const ARCHIVE_OLD_MESSAGES = config.archiveOldMessages;
+const LIMIT_MESSAGES_FETCH = tenant.config.limitMessagesFetch;
+const PROCESS_DELAY_SECONDS = tenant.config.processDelaySeconds;
+const MAX_QUEUE_SIZE = tenant.config.maxQueueSize;
+const LOG_TO_SLACK_CHANNEL = tenant.config.logToSlackChannel;
+const ARCHIVE_OLD_MESSAGES = tenant.config.archiveOldMessages;
 
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -74,17 +78,29 @@ function initArgs() {
             'h': {
                 alias: 'help'
             },
-            'c': {
-                alias: 'config',
+            't': {
+                alias: 'tenant',
                 demandOption: true,
-                type: 'string',
+                type: 'number',
             }
         })
-        .coerce('config', arg => JSON.parse(fs.readFileSync(arg, 'utf8')))
+        .coerce('tenant', arg => {
+            const tenants = JSON.parse(fs.readFileSync('./tenants.json', 'utf-8'));
+            const tenant = tenants.find(t => t.config.active && t.providers.sue?.id === arg);
+            if (tenant) {
+                return {
+                    name: tenant.name,
+                    id: tenant.providers.sue.id,
+                    system: tenant.providers.sue.system,
+                    config: tenant.config
+                };
+            }
+            return null;
+        })
         .version()
         .argv;
 
-    return argv.config;
+    return argv.tenant;
 
 }
 
