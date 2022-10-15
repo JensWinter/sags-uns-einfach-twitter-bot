@@ -33,7 +33,6 @@ const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
 const logger = initLogger();
 const twitterClient = initTwitterClient();
 
-const TWEET_WITH_IMAGE = tenant.config.tweetWithImage;
 const LOG_TO_SLACK_CHANNEL = tenant.config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
@@ -205,7 +204,7 @@ async function processNewMessage(message, imageData) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const subject = message.subject.slice(0, TWEET_WITH_IMAGE && imageData ? 224 : 234);
+    const subject = message.subject.slice(0, imageData ? 224 : 234);
     const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
 
     let status = `${date}:
@@ -229,7 +228,7 @@ ${url}`;
         }
     }
 
-    if (TWEET_WITH_IMAGE && imageData) {
+    if (imageData) {
 
         let mediaId = null;
         try {
