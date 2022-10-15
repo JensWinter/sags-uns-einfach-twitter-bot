@@ -27,7 +27,6 @@ const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
-const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
 const archiveDir = './archive';
 const tenantArchiveDir = `${archiveDir}/${tenantId}`;
 const archiveImagesDir = `${tenantArchiveDir}/images`;
@@ -143,10 +142,6 @@ function prepareTenantDirectories() {
     if (!fs.existsSync(queueResponseUpdatesDir)) {
         logger.info('Creating response updates queue directory.')
         fs.mkdirSync(queueResponseUpdatesDir, { recursive: true });
-    }
-    if (!fs.existsSync(queueStatusUpdatesDir)) {
-        logger.info('Creating status updates queue directory.')
-        fs.mkdirSync(queueStatusUpdatesDir, { recursive: true });
     }
     if (ARCHIVE_OLD_MESSAGES && !fs.existsSync(archiveMessagesDir)) {
         fs.mkdirSync(archiveMessagesDir, { recursive: true });

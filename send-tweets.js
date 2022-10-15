@@ -27,7 +27,6 @@ const imagesDir = `${tenantDir}/images`;
 const tweetsDir = `${tenantDir}/tweets`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
-const queueStatusUpdatesDir = `${tenantDir}/queue_status_updates`;
 const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
 
 const logger = initLogger();
@@ -49,24 +48,12 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
         return;
     }
 
-    let processResponseUpdateResult = null;
     if (!processNewMessageResult) {
-
         try {
-            processResponseUpdateResult = await popAndProcessResponseUpdate();
+            await popAndProcessResponseUpdate();
         } catch (e) {
             logger.error('Processing response updates queue failed.', e);
             return;
-        }
-
-    }
-
-    if (!processNewMessageResult && !processResponseUpdateResult) {
-
-        try {
-            await popAndProcessStatusUpdate();
-        } catch (e) {
-            logger.error('Processing status updates queue failed.', e);
         }
     }
 
@@ -289,80 +276,6 @@ async function sendNewMessageTweet(status, location, mediaId) {
 function removeItemFromNewMessagesQueue(filename) {
     logger.info(`Removing item "${filename}" from new messages queue`)
     fs.unlinkSync(`${queueNewMessagesDir}/${filename}`)
-}
-
-
-async function popAndProcessStatusUpdate() {
-
-    const itemToProcess = fs
-        .readdirSync(queueStatusUpdatesDir)
-        .filter(f => f.startsWith('message-') && f.endsWith('.json'))
-        .sort()
-        .shift();
-
-    if (itemToProcess) {
-
-        logger.info(`Found status update to tweet: ${itemToProcess}`);
-
-        const message = loadStatusUpdateFromQueue(itemToProcess);
-        const tweets = loadTweets(message);
-        const lastTweet = tweets.pop();
-        if (lastTweet) {
-            await processStatusUpdate(message, lastTweet.id_str);
-        } else {
-            logger.warn(`Didn't send status update tweet for message "${itemToProcess}", because origin tweet couldn't be found.`);
-        }
-
-        removeItemFromStatusUpdatesQueue(itemToProcess);
-
-    }
-
-    return itemToProcess;
-
-}
-
-
-function loadStatusUpdateFromQueue(filename) {
-    return JSON.parse(fs.readFileSync(`${queueStatusUpdatesDir}/${filename}`, 'utf-8'));
-}
-
-
-async function processStatusUpdate(message, replyToId) {
-
-    const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    const date = new Date(message.lastUpdated).toLocaleDateString('de-DE', localeOptions);
-
-    let statusText = '';
-    switch (message.status.toLowerCase()) {
-        case 'open':
-            statusText = '\u26A0 In Bearbeitung';
-            break;
-        case 'closed':
-            statusText = '\u2705 Abgeschlossen';
-            break;
-        case 'hold':
-            statusText = '💤 Warteposition';
-            break;
-    }
-
-    let status = `${date}:
-
-${statusText}`;
-
-    const location = getMessageLocation(message);
-    try {
-        const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
-        saveMessageTweet(message, sendTweetResult);
-    } catch(e) {
-        return logFailedTweet(e);
-    }
-
-}
-
-
-function removeItemFromStatusUpdatesQueue(filename) {
-    logger.info(`Removing item "${filename}" from status updates queue`)
-    fs.unlinkSync(`${queueStatusUpdatesDir}/${filename}`)
 }
 
 
