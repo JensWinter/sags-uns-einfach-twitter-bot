@@ -4,12 +4,12 @@ const https = require('https');
 const fs = require('fs');
 const winston = require('winston');
 const TwitterClient = require('twitter-api-client').TwitterClient;
+const { getMessageLocation } = require('./get-location');
 
 
 require('dotenv').config();
 
 
-const proj4 = initProj4();
 const tenant = initArgs();
 if (!tenant) {
     console.error('Couldn\'t load tenant configuration.');
@@ -78,16 +78,6 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
     }
 
 })();
-
-
-function initProj4() {
-    const proj4 = require('proj4');
-    proj4.defs([
-        ['EPSG:4326', '+title=WGS 84 (long/lat) +proj=longlat +ellps=WGS84 +datum=WGS84 +units=degrees'],
-        ['EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
-    ]);
-    return proj4;
-}
 
 
 function initArgs() {
@@ -213,21 +203,7 @@ async function processNewMessage(message, imageData) {
 ${subject}
 ${url}`;
 
-    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-    let lat = null;
-    let long = null;
-    if (display_coordinates) {
-        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-        if (coordinateSystem === 'EPSG:25832') {
-            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-            lat = destinationCoord[1];
-            long = destinationCoord[0];
-        } else {
-            lat = message.messagePosition.geoCoding.latitude;
-            long = message.messagePosition.geoCoding.longitude;
-        }
-    }
+    const location = getMessageLocation(message);
 
     if (TWEET_WITH_IMAGE && imageData) {
 
@@ -242,7 +218,7 @@ ${url}`;
 Bild: LH Magdeburg`;
 
         try {
-            const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, mediaId);
+            const sendTweetResult = await sendNewMessageTweet(status, location, mediaId);
             saveMessageTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
@@ -250,7 +226,7 @@ Bild: LH Magdeburg`;
 
     } else {
         try {
-            const sendTweetResult = await sendNewMessageTweet(status, display_coordinates, lat, long, null);
+            const sendTweetResult = await sendNewMessageTweet(status, location, null);
             saveMessageTweet(message, sendTweetResult);
         } catch(e) {
             return logFailedTweet(e);
@@ -282,20 +258,22 @@ async function uploadImage(imageDataBuffer) {
 }
 
 
-async function sendNewMessageTweet(status, display_coordinates, lat, long, mediaId) {
+async function sendNewMessageTweet(status, location, mediaId) {
 
     logger.info('Sending tweet...');
     logger.info(`...with status "${status}"`)
     if (mediaId) {
         logger.info(`...with media "${mediaId}"`)
     }
+
+    const display_coordinates = !!location && location.length === 2;
     if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
+        logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
     }
 
     return new Promise((resolve, reject) => {
         const parameters = display_coordinates
-            ? { status, display_coordinates, lat, long, media_ids: mediaId }
+            ? { status, display_coordinates, lat: location[1], long: location[0], media_ids: mediaId }
             : { status, media_ids: mediaId };
         twitterClient.tweets
             .statusesUpdate(parameters)
@@ -372,24 +350,9 @@ async function processStatusUpdate(message, replyToId) {
 
 ${statusText}`;
 
-    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-    let lat = null;
-    let long = null;
-    if (display_coordinates) {
-        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-        if (coordinateSystem === 'EPSG:25832') {
-            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-            lat = destinationCoord[1];
-            long = destinationCoord[0];
-        } else {
-            lat = message.messagePosition.geoCoding.latitude;
-            long = message.messagePosition.geoCoding.longitude;
-        }
-    }
-
+    const location = getMessageLocation(message);
     try {
-        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
         saveMessageTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
@@ -448,24 +411,11 @@ async function processResponseUpdate(message, replyToId) {
     let status = `${date}:
 
 "${responseText}"`;
-    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
-    const display_coordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
-    let lat = null;
-    let long = null;
-    if (display_coordinates) {
-        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
-        if (coordinateSystem === 'EPSG:25832') {
-            const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
-            lat = destinationCoord[1];
-            long = destinationCoord[0];
-        } else {
-            lat = message.messagePosition.geoCoding.latitude;
-            long = message.messagePosition.geoCoding.longitude;
-        }
-    }
+
+    const location = getMessageLocation(message);
 
     try {
-        const sendTweetResult = await sendUpdateTweet(status, display_coordinates, lat, long, replyToId);
+        const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
         saveMessageTweet(message, sendTweetResult);
     } catch(e) {
         return logFailedTweet(e);
@@ -549,17 +499,19 @@ function saveStatisticsTweet(text, tweetResult) {
 }
 
 
-async function sendUpdateTweet(status, display_coordinates, lat, long, replyToId) {
+async function sendUpdateTweet(status, location, replyToId) {
 
     logger.info('Sending tweet...');
     logger.info(`...with status "${status}"`)
+
+    const display_coordinates = !!location && location.length === 2;
     if (display_coordinates) {
-        logger.info(`...with coordinate lat="${lat}" long="${long}"`);
+        logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
     }
 
     return new Promise((resolve, reject) => {
         const parameters = display_coordinates
-            ? { status, display_coordinates, lat, long, in_reply_to_status_id: replyToId }
+            ? { status, display_coordinates, lat: location[1], long: location[0], in_reply_to_status_id: replyToId }
             : { status, in_reply_to_status_id: replyToId };
         twitterClient.tweets
             .statusesUpdate(parameters)
