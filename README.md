@@ -144,9 +144,6 @@ Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen
 ### twitter.accessTokenSecret
 Bitte dem Twitter Developer Portal für den jeweiligen Twitter-Account entnehmen.
 
-### tweetWithImage
-Wenn dieser Wert auf `true` gesetzt ist, wird - sofern vorhanden - das zur Meldung gehörende Bild im Tweet eingebettet.
-
 ### logToSlackChannel
 Auf `true` setzen, damit Fehler-Benachrichtung und andere Benachrichtigungen in einen Slack-Kanal gepostet werden. Setzt voraus, dass der Parameter [SLACK_WEBHOOK_URL](###slack-webhook-url) korrekt gesetzt ist.
 
