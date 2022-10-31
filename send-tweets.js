@@ -16,13 +16,12 @@ if (!tenant) {
     process.exit(1);
 }
 
-const tenantName = tenant.name;
-const tenantId = tenant.id;
-const baseUrl = `https://include-${tenant.system}.zfinder.de`;
-const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenantId}`;
+const tenantKey = tenant.key;
+const baseUrl = `https://include-${tenant.providers.sue.system}.zfinder.de`;
+const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenant.providers.sue.id}`;
 
 const tenantsDir = './tenants';
-const tenantDir = `${tenantsDir}/${tenantId}`;
+const tenantDir = `${tenantsDir}/${tenantKey}`;
 const imagesDir = `${tenantDir}/images`;
 const tweetsDir = `${tenantDir}/tweets`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
@@ -78,21 +77,12 @@ function initArgs() {
             't': {
                 alias: 'tenant',
                 demandOption: true,
-                type: 'number',
+                type: 'string',
             }
         })
         .coerce('tenant', arg => {
             const tenants = JSON.parse(fs.readFileSync('./tenants.json', 'utf-8'));
-            const tenant = tenants.find(t => t.config.active && t.providers.sue?.id === arg);
-            if (tenant) {
-                return {
-                    name: tenant.name,
-                    id: tenant.providers.sue.id,
-                    system: tenant.providers.sue.system,
-                    config: tenant.config
-                };
-            }
-            return null;
+            return tenants.find(t => t.config.active && t.key === arg);
         })
         .version()
         .argv;
@@ -121,6 +111,10 @@ function initLogger() {
 
 
 function prepareTenantDirectory() {
+    if (!fs.existsSync(queueStatisticsUpdatesDir)) {
+        logger.info('Creating statistics update queue directory.')
+        fs.mkdirSync(queueStatisticsUpdatesDir, { recursive: true });
+    }
     if (!fs.existsSync(tweetsDir)) {
         logger.info('Creating tweets directory.')
         fs.mkdirSync(tweetsDir, { recursive: true });
@@ -448,7 +442,7 @@ function logFailedTweet(error) {
 
 function sendToSlackChannel(message) {
 
-    const text = `${tenantName}/${tenantId}: ${message}`;
+    const text = `${tenantKey}: ${message}`;
     const strData = JSON.stringify({ text });
     const options = {
         method: 'POST',

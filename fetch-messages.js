@@ -15,20 +15,19 @@ if (!tenant) {
     process.exit(1);
 }
 
-const tenantName = tenant.name;
-const tenantId = tenant.id;
-const baseUrl = `https://include-${tenant.system}.zfinder.de`;
-const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenantId}`;
+const tenantKey = tenant.key;
+const baseUrl = `https://include-${tenant.providers.sue.system}.zfinder.de`;
+const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenant.providers.sue.id}`;
 
 const tenantsDir = './tenants';
-const tenantDir = `${tenantsDir}/${tenantId}`;
+const tenantDir = `${tenantsDir}/${tenantKey}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
 const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
 const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
 const archiveDir = './archive';
-const tenantArchiveDir = `${archiveDir}/${tenantId}`;
+const tenantArchiveDir = `${archiveDir}/${tenantKey}`;
 const archiveImagesDir = `${tenantArchiveDir}/images`;
 const archiveMessagesDir = `${tenantArchiveDir}/messages`;
 
@@ -80,21 +79,12 @@ function initArgs() {
             't': {
                 alias: 'tenant',
                 demandOption: true,
-                type: 'number',
+                type: 'string',
             }
         })
         .coerce('tenant', arg => {
             const tenants = JSON.parse(fs.readFileSync('./tenants.json', 'utf-8'));
-            const tenant = tenants.find(t => t.config.active && t.providers.sue?.id === arg);
-            if (tenant) {
-                return {
-                    name: tenant.name,
-                    id: tenant.providers.sue.id,
-                    system: tenant.providers.sue.system,
-                    config: tenant.config
-                };
-            }
-            return null;
+            return tenants.find(t => t.config.active && t.key === arg);
         })
         .version()
         .argv;
@@ -421,7 +411,7 @@ function saveMessageDetailsToFile(message) {
 async function saveMessageDetailsToDatabase(message) {
     logger.info(`Saving details for message "${message.id}" to database`);
     const location = getMessageLocation(message);
-    const doc = { ...message, tenantId, location };
+    const doc = { ...message, tenantKey, location };
     await messagesCollection.replaceOne({ id: message.id }, doc, { upsert: true })
 }
 
@@ -472,7 +462,7 @@ async function saveImageToS3(messageDetails, imageDataBuffer) {
     const filename = `${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
     return s3.upload({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
-        Key: `tenants/${tenantId}/images/${filename}`,
+        Key: `tenants/${tenantKey}/images/${filename}`,
         Body: imageDataBuffer,
     }).promise();
 }
@@ -588,7 +578,7 @@ function logNewMessages(messages) {
 
 function sendToSlackChannel(message) {
 
-    const text = `${tenantName}/${tenantId}: ${message}`;
+    const text = `${tenantKey}: ${message}`;
     const strData = JSON.stringify({ text });
     const options = {
         method: 'POST',
