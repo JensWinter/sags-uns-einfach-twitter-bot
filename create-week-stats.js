@@ -13,9 +13,9 @@ if (!tenant) {
     process.exit(1);
 }
 
-const tenantId = tenant.id;
+const tenantKey = tenant.key;
 const tenantsDir = './tenants';
-const tenantDir = `${tenantsDir}/${tenantId}`;
+const tenantDir = `${tenantsDir}/${tenantKey}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
@@ -43,21 +43,12 @@ function initArgs() {
             't': {
                 alias: 'tenant',
                 demandOption: true,
-                type: 'number',
+                type: 'string',
             }
         })
         .coerce('tenant', arg => {
             const tenants = JSON.parse(fs.readFileSync('./tenants.json', 'utf-8'));
-            const tenant = tenants.find(t => t.config.active && t.providers.sue?.id === arg);
-            if (tenant) {
-                return {
-                    name: tenant.name,
-                    id: tenant.providers.sue.id,
-                    system: tenant.providers.sue.system,
-                    config: tenant.config
-                };
-            }
-            return null;
+            return tenants.find(t => t.config.active && t.key === arg);
         })
         .version()
         .argv;
