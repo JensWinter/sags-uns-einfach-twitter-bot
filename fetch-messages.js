@@ -199,13 +199,13 @@ async function processNewMessages(pastMessages, newMessages) {
 
     if (newMessages.length === 0) {
         logger.info('No new messages to process.');
-        return Promise.resolve();
+        return;
     }
 
     logNewMessages(newMessages)
     recordNewMessages(pastMessages, newMessages);
 
-    return processNewMessagesDelayed(newMessages);
+    await processNewMessagesDelayed(newMessages);
 
 }
 
@@ -229,8 +229,8 @@ async function processNewMessagesDelayed(messages) {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
-        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessMessage(processNewMessage));
+        delayProcessMessage(resolve)(null, messages.length);
     });
 
 }
@@ -250,22 +250,22 @@ async function processMessageUpdatesDelayed(messages) {
                 if (fs.existsSync(filepath)) {
                     const oldMessage = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
                     if (message.lastUpdated > oldMessage.lastUpdated) {
-                        delayProcessMessage(processMessageUpdate, PROCESS_DELAY_SECONDS * 1000)(oldMessage, index);
+                        delayProcessMessage(processMessageUpdate)(oldMessage, index);
                         index++;
                     }
                 }
 
             });
 
-        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, index);
+        delayProcessMessage(resolve)(null, index);
 
     });
 
 }
 
 
-function delayProcessMessage(fn, delay) {
-    return (message, i) => setTimeout(() => fn(message), i * delay);
+function delayProcessMessage(fn) {
+    return (message, i) => setTimeout(() => fn(message), i * PROCESS_DELAY_SECONDS * 1000);
 }
 
 
