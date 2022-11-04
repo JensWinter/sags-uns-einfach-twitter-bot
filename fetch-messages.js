@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
 const dateFns = require('date-fns');
@@ -65,7 +66,7 @@ const s3 = new AWS.S3({
     } catch (e) {
         logger.error(e);
         if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(e);
+            sendToSlackChannel(e);
         }
     } finally {
         await mongoClient.close();
@@ -153,75 +154,34 @@ function prepareTenantDirectories() {
 
 async function fetchAndProcessMessages() {
 
-    return new Promise((resolve, reject) => {
+    // Get the messages that are currently available
+    const currentMessages = await fetchCurrentMessages();
 
-        const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
+    // Load all the messages we already know
+    const pastMessages = loadPastMessages();
 
-            if (res.statusCode !== 200) {
-                logFailedDataFetch(res.statusMessage);
-                return reject(res.statusMessage);
-            }
+    // Check for messages we haven't seen yet
+    const newMessages = findNewMessages(currentMessages, pastMessages);
 
-            let body = '';
+    // Check if there are any new messages
+    await processNewMessages(pastMessages, newMessages);
+    logger.info('Processing new messages finished.');
 
-            res.on('data', d => body += d);
-            res.on('end', () => {
+    // Check if there are any updates to already known messages
+    await processMessageUpdates(currentMessages)
+    logger.info('Processing message updates finished.');
 
-                // Get the messages that are currently available
-                const currentMessages = JSON.parse(body);
+    if (ARCHIVE_OLD_MESSAGES) {
+        await archiveOldMessages(pastMessages, currentMessages)
+        logger.info('Archiving old messages finished.');
+    }
 
-                // Load all the messages we already know
-                const pastMessages = loadPastMessages();
+}
 
-                // Check for messages we haven't seen yet
-                const newMessages = findNewMessages(currentMessages, pastMessages);
 
-                processNewMessages(pastMessages, newMessages)
-                    .then(() => {
-
-                        logger.info('Processing new messages finished.');
-
-                        // Check if there are any updates to already known messages
-                        processMessageUpdates(currentMessages)
-                            .then(() => {
-
-                                logger.info('Processing message updates finished.');
-
-                                if (ARCHIVE_OLD_MESSAGES) {
-                                    archiveOldMessages(pastMessages, currentMessages)
-                                        .then(() => {
-                                            logger.info('Archiving old messages finished.');
-                                            resolve();
-                                        })
-                                        .catch(e => {
-                                            logger.error('Archiving old messages finished with errors.', e);
-                                            reject(e);
-                                        });
-                                }
-
-                            })
-                            .catch(e => {
-                                logger.error('Processing message updates finished with errors.', e);
-                                reject(e);
-                            });
-
-                    })
-                    .catch(e => {
-                        logger.error('Processing new messages finished with errors.', e);
-                        reject(e);
-                    });
-
-            });
-
-        });
-        req.on('error', e => {
-            logFailedDataFetch(e.message);
-            reject(e);
-        });
-        req.end();
-
-    });
-
+async function fetchCurrentMessages() {
+    const { data } = await axios.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`);
+    return data;
 }
 
 
@@ -528,15 +488,6 @@ async function archiveOldMessages(pastMessages, currentMessages) {
 
     });
 
-}
-
-
-function logFailedDataFetch(errorMessage) {
-    const text = `Fetching data failed: ${errorMessage}`;
-    logger.error(text);
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
 }
 
 
