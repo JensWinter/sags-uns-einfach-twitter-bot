@@ -48,23 +48,32 @@ const mongoClient = new MongoClient(DATABASE_URL);
 const db = mongoClient.db(DATABASE_NAME);
 const messagesCollection = db.collection('messages');
 
-
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
 });
 
 
-logger.info('Run initiated.')
+(async () => {
 
+    logger.info('Run started.');
 
-prepareTenantDirectories();
+    try {
+        prepareTenantDirectories();
+        await mongoClient.connect();
+        await fetchAndProcessMessages();
+    } catch (e) {
+        logger.error(e);
+        if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(e);
+        }
+    } finally {
+        await mongoClient.close();
+    }
 
+    logger.info('Run finished.');
 
-mongoClient
-    .connect()
-    .then(async () => fetchAndProcessMessages().then(async () => await mongoClient.close()).catch(logger.error))
-    .catch(logger.error);
+})();
 
 
 function initArgs() {
