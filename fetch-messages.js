@@ -1,6 +1,5 @@
 'use strict';
 
-const https = require('https');
 const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
@@ -162,15 +161,12 @@ async function fetchAndProcessMessages() {
 
     // Check if there are any new messages
     await processNewMessages(pastMessages, newMessages);
-    logger.info('Processing new messages finished.');
 
     // Check if there are any updates to already known messages
     await processMessageUpdates(currentMessages)
-    logger.info('Processing message updates finished.');
 
     if (ARCHIVE_OLD_MESSAGES) {
         await archiveOldMessages(pastMessages, currentMessages)
-        logger.info('Archiving old messages finished.');
     }
 
 }
@@ -195,8 +191,7 @@ function findNewMessages(currentMessages, pastMessages) {
 async function processNewMessages(pastMessages, newMessages) {
 
     if (newMessages.length === 0) {
-        logger.info('No new messages to process.');
-        return;
+        return logger.info('No new messages to process.');
     }
 
     logNewMessages(newMessages)
@@ -204,12 +199,15 @@ async function processNewMessages(pastMessages, newMessages) {
 
     await processNewMessagesDelayed(newMessages);
 
+    logger.info('Processing new messages finished.');
+
 }
 
 
 async function processMessageUpdates(currentMessages) {
     logger.info('Checking for message updates');
-    return processMessageUpdatesDelayed(currentMessages);
+    await processMessageUpdatesDelayed(currentMessages);
+    logger.info('Processing message updates finished.');
 }
 
 
@@ -268,44 +266,28 @@ function delayProcessMessage(fn) {
 
 async function processNewMessage(message) {
 
-    let messageDetails = null;
     try {
-        messageDetails = await fetchMessageDetails(message);
-    } catch (e) {
-        return logFailedDetailsFetch(e);
-    }
 
-    saveMessageDetailsToFile(messageDetails);
-    await saveMessageDetailsToDatabase(messageDetails);
+        const messageDetails = await fetchMessageDetails(message);
 
-    let imageData = null;
-    if (messageDetails.messageImage) {
+        saveMessageDetailsToFile(messageDetails);
+        await saveMessageDetailsToDatabase(messageDetails);
 
-        try {
-            imageData = await fetchImage(messageDetails);
-        } catch (e) {
-            return logFailedImageFetch(e);
-        }
-
-        try {
+        if (messageDetails.messageImage) {
+            const imageData = await fetchImage(messageDetails);
             await saveImageToFile(messageDetails, imageData);
-        } catch (e) {
-            return logFailedImageFileSave(e);
-        }
-
-        try {
             await saveImageToS3(messageDetails, imageData);
-        } catch (e) {
-            return logFailedImageS3Save(e);
         }
 
-    }
-
-    if (MAX_QUEUE_SIZE > 0) {
-        enqueueNewMessage(messageDetails);
-        if (messageDetails.responses.length > 0) {
-            enqueueResponseUpdate(messageDetails);
+        if (MAX_QUEUE_SIZE > 0) {
+            enqueueNewMessage(messageDetails);
+            if (messageDetails.responses.length > 0) {
+                enqueueResponseUpdate(messageDetails);
+            }
         }
+
+    } catch (e) {
+        return logFailedProcessNewMessage(e);
     }
 
 }
@@ -313,17 +295,23 @@ async function processNewMessage(message) {
 
 async function processMessageUpdate(oldMessage) {
 
-    const messageDetails = await fetchMessageDetails(oldMessage);
+    try {
 
-    saveMessageDetailsToFile(messageDetails);
-    await saveMessageDetailsToDatabase(messageDetails);
+        const messageDetails = await fetchMessageDetails(oldMessage);
 
-    if (oldMessage.responses.length < messageDetails.responses.length) {
-        const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
-        logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
-        if (MAX_QUEUE_SIZE > 0) {
-            enqueueResponseUpdate(messageDetails);
+        saveMessageDetailsToFile(messageDetails);
+        await saveMessageDetailsToDatabase(messageDetails);
+
+        if (oldMessage.responses.length < messageDetails.responses.length) {
+            const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
+            logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
+            if (MAX_QUEUE_SIZE > 0) {
+                enqueueResponseUpdate(messageDetails);
+            }
         }
+
+    } catch (e) {
+        return logFailedProcessMessageUpdate(e);
     }
 
 }
@@ -333,35 +321,16 @@ async function fetchMessageDetails(message) {
 
     logger.info(`Fetching details for message "${message.id}"`);
 
-    return new Promise((resolve, reject) => {
+    const { data } = await axios.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`);
 
-        const req = https.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`, res => {
+    // Get the messages that are currently available
+    const messageDetails = data;
+    if (messageDetails && messageDetails.length > 0) {
+        logger.info(`Received details for message "${message.id}"`);
+        return messageDetails[0];
+    }
 
-            if (res.statusCode !== 200) {
-                return reject(res.statusMessage);
-            }
-
-            let body = '';
-
-            res.on('data', d => body += d);
-            res.on('end', () => {
-
-                // Get the messages that are currently available
-                const messageDetails = JSON.parse(body);
-                if (messageDetails && messageDetails.length > 0) {
-                    logger.info(`Received details for message "${message.id}"`);
-                    resolve(messageDetails[0]);
-                }
-
-                return reject(`No details for message "${message.id}"`);
-
-            });
-
-        });
-        req.on('error', e => reject(e.message));
-        req.end();
-
-    });
+    return Promise.reject(`No details for message "${message.id}"`)
 
 }
 
@@ -384,30 +353,13 @@ async function saveMessageDetailsToDatabase(message) {
 
 async function fetchImage(messageDetails) {
 
-    logger.info(`Fetching image of message "${messageDetails.id}"`)
+    logger.info(`Fetching image of message "${messageDetails.id}"`);
 
-    return new Promise((resolve, reject) => {
-
-        const imageId = messageDetails.messageImage.id;
-        const req = https.get(`${baseUrl}/IWImageLoader?mediaId=${imageId}`, (res) => {
-
-            if (res.statusCode !== 200) {
-                return reject(res.statusMessage);
-            }
-
-            const imageData = [];
-
-            res.on('data', d => imageData.push(d));
-            res.on('end', () => {
-                logger.info(`Received image of message "${messageDetails.id}"`);
-                resolve(Buffer.concat(imageData));
-            });
-
-        });
-        req.on('error', () => reject(e.message));
-        req.end();
-
-    });
+    const { data } = await axios.get(
+        `${baseUrl}/IWImageLoader?mediaId=${messageDetails.messageImage.id}`,
+        { responseType: 'arraybuffer' }
+    );
+    return data;
 
 }
 
@@ -485,11 +437,13 @@ async function archiveOldMessages(pastMessages, currentMessages) {
 
     });
 
+    logger.info('Archiving old messages finished.');
+
 }
 
 
-function logFailedDetailsFetch(errorMessage) {
-    const text = `Fetching details failed: ${errorMessage}`;
+function logFailedProcessNewMessage(errorMessage) {
+    const text = `Processing new message failed: ${errorMessage}`;
     logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
@@ -497,26 +451,8 @@ function logFailedDetailsFetch(errorMessage) {
 }
 
 
-function logFailedImageFetch(errorMessage) {
-    const text = `Fetching image failed: ${errorMessage}`;
-    logger.error(text);
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedImageFileSave(errorMessage) {
-    const text = `Saving image to file failed: ${errorMessage}`;
-    logger.error(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedImageS3Save(errorMessage) {
-    const text = `Saving image to S3 failed: ${errorMessage}`;
+function logFailedProcessMessageUpdate(errorMessage) {
+    const text = `Processing message update failed: ${errorMessage}`;
     logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
@@ -547,5 +483,5 @@ function sendToSlackChannel(message) {
     const strData = JSON.stringify({ text });
     axios
         .post(SLACK_WEBHOOK_URL, strData)
-        .catch(e => console.error(e));
+        .catch(e => logger.error(e));
 }
