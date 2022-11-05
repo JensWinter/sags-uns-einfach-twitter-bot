@@ -543,28 +543,9 @@ function logNewMessages(messages) {
 
 
 function sendToSlackChannel(message) {
-
     const text = `${tenantKey}: ${message}`;
     const strData = JSON.stringify({ text });
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': strData.length
-        }
-    };
-    const req = https.request(
-        SLACK_WEBHOOK_URL,
-        options,
-        res => {
-            if (res.statusCode !== 200) {
-                logger.error(`Failed to send message to Slack channel: ${text}`)
-            }
-        }
-    );
-
-    req.on('error', error => console.error(error));
-    req.write(strData);
-    req.end();
-
+    axios
+        .post(SLACK_WEBHOOK_URL, strData)
+        .catch(e => console.error(e));
 }
