@@ -64,10 +64,7 @@ const s3 = new AWS.S3({
         await mongoClient.connect();
         await fetchAndProcessMessages();
     } catch (e) {
-        logger.error(e);
-        if (LOG_TO_SLACK_CHANNEL) {
-            sendToSlackChannel(e);
-        }
+        logError(e);
     } finally {
         await mongoClient.close();
     }
@@ -521,6 +518,15 @@ function logFailedImageFileSave(errorMessage) {
 function logFailedImageS3Save(errorMessage) {
     const text = `Saving image to S3 failed: ${errorMessage}`;
     logger.error(text)
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    }
+}
+
+
+function logError(error) {
+    const text = `ERROR: ${error}`;
+    logger.info(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
