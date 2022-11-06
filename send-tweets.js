@@ -1,6 +1,6 @@
 'use strict';
 
-const https = require('https');
+const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
 const TwitterClient = require('twitter-api-client').TwitterClient;
@@ -37,29 +37,19 @@ const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 (async () => {
 
-    prepareTenantDirectory();
-
-    let processNewMessageResult = null;
     try {
-        processNewMessageResult = await popAndProcessNewMessage();
-    } catch (e) {
-        logger.error('Processing new messages queue failed.', e)
-        return;
-    }
 
-    if (!processNewMessageResult) {
-        try {
+        prepareTenantDirectory();
+
+        const processNewMessageResult = await popAndProcessNewMessage();
+        if (!processNewMessageResult) {
             await popAndProcessResponseUpdate();
-        } catch (e) {
-            logger.error('Processing response updates queue failed.', e);
-            return;
         }
-    }
 
-    try {
         await popAndProcessStatisticsUpdate();
+
     } catch (e) {
-        logger.error('Processing statistics queue failed.', e)
+        logError(e);
     }
 
 })();
@@ -111,10 +101,6 @@ function initLogger() {
 
 
 function prepareTenantDirectory() {
-    if (!fs.existsSync(queueStatisticsUpdatesDir)) {
-        logger.info('Creating statistics update queue directory.')
-        fs.mkdirSync(queueStatisticsUpdatesDir, { recursive: true });
-    }
     if (!fs.existsSync(tweetsDir)) {
         logger.info('Creating tweets directory.')
         fs.mkdirSync(tweetsDir, { recursive: true });
@@ -431,6 +417,15 @@ async function sendUpdateTweet(status, location, replyToId) {
 }
 
 
+function logError(error) {
+    const text = `ERROR: ${error}`;
+    logger.info(text)
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    }
+}
+
+
 function logFailedTweet(error) {
     const text = 'Sending tweet failed';
     logger.error(text, error);
@@ -441,30 +436,9 @@ function logFailedTweet(error) {
 
 
 function sendToSlackChannel(message) {
-
     const text = `${tenantKey}: ${message}`;
     const strData = JSON.stringify({ text });
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': strData.length
-        }
-    };
-    const req = https.request(
-        SLACK_WEBHOOK_URL,
-        options,
-        res => {
-            if (res.statusCode !== 200) {
-                logger.error(`Failed to send message to Slack channel: ${text}`)
-            }
-        }
-    );
-
-    req.on('error', error => console.error(error));
-    req.write(strData);
-    req.end();
-
+    axios
+        .post(SLACK_WEBHOOK_URL, strData)
+        .catch(e => console.error(e));
 }
-
-
