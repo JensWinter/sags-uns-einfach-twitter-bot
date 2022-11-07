@@ -102,7 +102,7 @@ function initLogger() {
 
 function prepareTenantDirectory() {
     if (!fs.existsSync(tweetsDir)) {
-        logger.info('Creating tweets directory.')
+        logger.info('Creating tweets directory.');
         fs.mkdirSync(tweetsDir, { recursive: true });
     }
 }
@@ -173,30 +173,15 @@ ${url}`;
 
     if (imageData) {
 
-        let mediaId = null;
-        try {
-            mediaId = await uploadImage(imageData);
-        } catch (e) {
-            return logFailedTweet(e);
-        }
-
+        const mediaId = await uploadImage(imageData);
         status += `
 Bild: LH Magdeburg`;
-
-        try {
-            const sendTweetResult = await sendNewMessageTweet(status, location, mediaId);
-            saveMessageTweet(message, sendTweetResult);
-        } catch(e) {
-            return logFailedTweet(e);
-        }
+        const sendTweetResult = await sendNewMessageTweet(status, location, mediaId);
+        saveMessageTweet(message, sendTweetResult);
 
     } else {
-        try {
-            const sendTweetResult = await sendNewMessageTweet(status, location, null);
-            saveMessageTweet(message, sendTweetResult);
-        } catch(e) {
-            return logFailedTweet(e);
-        }
+        const sendTweetResult = await sendNewMessageTweet(status, location, null);
+        saveMessageTweet(message, sendTweetResult);
     }
 
 }
@@ -206,20 +191,14 @@ async function uploadImage(imageDataBuffer) {
 
     logger.info('Uploading image to Twitter')
 
-    return new Promise((resolve, reject) => {
+    // noinspection JSCheckFunctionSignatures
+    const base64 = imageDataBuffer.toString('base64');
+    const uploadParams = { media_data: base64 };
+    const uploadResult = await twitterClient.media.mediaUpload(uploadParams);
 
-        // noinspection JSCheckFunctionSignatures
-        const base64 = imageDataBuffer.toString('base64');
-        const uploadParams = { media_data: base64 };
-        twitterClient.media
-            .mediaUpload(uploadParams)
-            .then(uploadResult => {
-                logger.info('Image successfully sent to Twitter')
-                resolve(uploadResult.media_id_string);
-            })
-            .catch(reject);
+    logger.info('Image successfully sent to Twitter');
 
-    });
+    return uploadResult.media_id_string;
 
 }
 
@@ -227,9 +206,9 @@ async function uploadImage(imageDataBuffer) {
 async function sendNewMessageTweet(status, location, mediaId) {
 
     logger.info('Sending tweet...');
-    logger.info(`...with status "${status}"`)
+    logger.info(`...with status "${status}"`);
     if (mediaId) {
-        logger.info(`...with media "${mediaId}"`)
+        logger.info(`...with media "${mediaId}"`);
     }
 
     const display_coordinates = !!location && location.length === 2;
@@ -237,18 +216,14 @@ async function sendNewMessageTweet(status, location, mediaId) {
         logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
     }
 
-    return new Promise((resolve, reject) => {
-        const parameters = display_coordinates
-            ? { status, display_coordinates, lat: location[1], long: location[0], media_ids: mediaId }
-            : { status, media_ids: mediaId };
-        twitterClient.tweets
-            .statusesUpdate(parameters)
-            .then(sendResult => {
-                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
-                resolve(sendResult);
-            })
-            .catch(reject);
-    });
+    const parameters = display_coordinates
+        ? { status, display_coordinates, lat: location[1], long: location[0], media_ids: mediaId }
+        : { status, media_ids: mediaId };
+    const sendResult = await twitterClient.tweets.statusesUpdate(parameters);
+
+    logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`);
+
+    return sendResult;
 
 }
 
@@ -303,15 +278,9 @@ async function processResponseUpdate(message, replyToId) {
     let status = `${date}:
 
 "${responseText}"`;
-
     const location = getMessageLocation(message);
-
-    try {
-        const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
-        saveMessageTweet(message, sendTweetResult);
-    } catch(e) {
-        return logFailedTweet(e);
-    }
+    const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
+    saveMessageTweet(message, sendTweetResult);
 
 }
 
@@ -351,13 +320,9 @@ function loadStatisticsUpdateFromQueue(filename) {
 }
 
 
-async function processStatisticsUpdate(text, date) {
-    try {
-        const sendTweetResult = await sendUpdateTweet(text, false, null, null);
-        saveStatisticsTweet(text, sendTweetResult);
-    } catch(e) {
-        return logFailedTweet(e);
-    }
+async function processStatisticsUpdate(text) {
+    const sendTweetResult = await sendUpdateTweet(text, false, null, null);
+    saveStatisticsTweet(text, sendTweetResult);
 }
 
 
@@ -401,34 +366,21 @@ async function sendUpdateTweet(status, location, replyToId) {
         logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
     }
 
-    return new Promise((resolve, reject) => {
-        const parameters = display_coordinates
-            ? { status, display_coordinates, lat: location[1], long: location[0], in_reply_to_status_id: replyToId }
-            : { status, in_reply_to_status_id: replyToId };
-        twitterClient.tweets
-            .statusesUpdate(parameters)
-            .then(sendResult => {
-                logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`)
-                resolve(sendResult);
-            })
-            .catch(reject);
-    });
+    const parameters = display_coordinates
+        ? { status, display_coordinates, lat: location[1], long: location[0], in_reply_to_status_id: replyToId }
+        : { status, in_reply_to_status_id: replyToId };
+    const sendResult = await twitterClient.tweets.statusesUpdate(parameters);
+
+    logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`);
+
+    return sendResult;
 
 }
 
 
 function logError(error) {
     const text = `ERROR: ${error}`;
-    logger.info(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedTweet(error) {
-    const text = 'Sending tweet failed';
-    logger.error(text, error);
+    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
