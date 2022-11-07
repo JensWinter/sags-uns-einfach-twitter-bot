@@ -462,7 +462,7 @@ function logFailedProcessMessageUpdate(errorMessage) {
 
 function logError(error) {
     const text = `ERROR: ${error}`;
-    logger.info(text)
+    logger.error(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
@@ -471,7 +471,7 @@ function logError(error) {
 
 function logNewMessages(messages) {
     const text = `Found new messages: ${messages.length}`;
-    logger.info(text)
+    logger.info(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
