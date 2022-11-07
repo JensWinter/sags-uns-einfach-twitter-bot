@@ -1,6 +1,6 @@
 'use strict';
 
-const https = require('https');
+const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
 const dateFns = require('date-fns');
@@ -48,23 +48,29 @@ const mongoClient = new MongoClient(DATABASE_URL);
 const db = mongoClient.db(DATABASE_NAME);
 const messagesCollection = db.collection('messages');
 
-
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
 });
 
 
-logger.info('Run initiated.')
+(async () => {
 
+    logger.info('Run started.');
 
-prepareTenantDirectories();
+    try {
+        prepareTenantDirectories();
+        await mongoClient.connect();
+        await fetchAndProcessMessages();
+    } catch (e) {
+        logError(e);
+    } finally {
+        await mongoClient.close();
+    }
 
+    logger.info('Run finished.');
 
-mongoClient
-    .connect()
-    .then(async () => fetchAndProcessMessages().then(async () => await mongoClient.close()).catch(logger.error))
-    .catch(logger.error);
+})();
 
 
 function initArgs() {
@@ -144,75 +150,31 @@ function prepareTenantDirectories() {
 
 async function fetchAndProcessMessages() {
 
-    return new Promise((resolve, reject) => {
+    // Get the messages that are currently available
+    const currentMessages = await fetchCurrentMessages();
 
-        const req = https.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`, res => {
+    // Load all the messages we already know
+    const pastMessages = loadPastMessages();
 
-            if (res.statusCode !== 200) {
-                logFailedDataFetch(res.statusMessage);
-                return reject(res.statusMessage);
-            }
+    // Check for messages we haven't seen yet
+    const newMessages = findNewMessages(currentMessages, pastMessages);
 
-            let body = '';
+    // Check if there are any new messages
+    await processNewMessages(pastMessages, newMessages);
 
-            res.on('data', d => body += d);
-            res.on('end', () => {
+    // Check if there are any updates to already known messages
+    await processMessageUpdates(currentMessages)
 
-                // Get the messages that are currently available
-                const currentMessages = JSON.parse(body);
+    if (ARCHIVE_OLD_MESSAGES) {
+        await archiveOldMessages(pastMessages, currentMessages)
+    }
 
-                // Load all the messages we already know
-                const pastMessages = loadPastMessages();
+}
 
-                // Check for messages we haven't seen yet
-                const newMessages = findNewMessages(currentMessages, pastMessages);
 
-                processNewMessages(pastMessages, newMessages)
-                    .then(() => {
-
-                        logger.info('Processing new messages finished.');
-
-                        // Check if there are any updates to already known messages
-                        processMessageUpdates(currentMessages)
-                            .then(() => {
-
-                                logger.info('Processing message updates finished.');
-
-                                if (ARCHIVE_OLD_MESSAGES) {
-                                    archiveOldMessages(pastMessages, currentMessages)
-                                        .then(() => {
-                                            logger.info('Archiving old messages finished.');
-                                            resolve();
-                                        })
-                                        .catch(e => {
-                                            logger.error('Archiving old messages finished with errors.', e);
-                                            reject(e);
-                                        });
-                                }
-
-                            })
-                            .catch(e => {
-                                logger.error('Processing message updates finished with errors.', e);
-                                reject(e);
-                            });
-
-                    })
-                    .catch(e => {
-                        logger.error('Processing new messages finished with errors.', e);
-                        reject(e);
-                    });
-
-            });
-
-        });
-        req.on('error', e => {
-            logFailedDataFetch(e.message);
-            reject(e);
-        });
-        req.end();
-
-    });
-
+async function fetchCurrentMessages() {
+    const { data } = await axios.get(`${tenantBaseUrl}?format=json&action=search&limit=${LIMIT_MESSAGES_FETCH}`);
+    return data;
 }
 
 
@@ -229,21 +191,23 @@ function findNewMessages(currentMessages, pastMessages) {
 async function processNewMessages(pastMessages, newMessages) {
 
     if (newMessages.length === 0) {
-        logger.info('No new messages to process.');
-        return Promise.resolve();
+        return logger.info('No new messages to process.');
     }
 
     logNewMessages(newMessages)
     recordNewMessages(pastMessages, newMessages);
 
-    return processNewMessagesDelayed(newMessages);
+    await processNewMessagesDelayed(newMessages);
+
+    logger.info('Processing new messages finished.');
 
 }
 
 
 async function processMessageUpdates(currentMessages) {
     logger.info('Checking for message updates');
-    return processMessageUpdatesDelayed(currentMessages);
+    await processMessageUpdatesDelayed(currentMessages);
+    logger.info('Processing message updates finished.');
 }
 
 
@@ -260,8 +224,8 @@ async function processNewMessagesDelayed(messages) {
         messages
             .sort((a, b) => a.createdDate > b.createdDate ? -1 : 0)
             .reverse()
-            .forEach(delayProcessMessage(processNewMessage, PROCESS_DELAY_SECONDS * 1000));
-        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, messages.length);
+            .forEach(delayProcessMessage(processNewMessage));
+        delayProcessMessage(resolve)(null, messages.length);
     });
 
 }
@@ -281,65 +245,49 @@ async function processMessageUpdatesDelayed(messages) {
                 if (fs.existsSync(filepath)) {
                     const oldMessage = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
                     if (message.lastUpdated > oldMessage.lastUpdated) {
-                        delayProcessMessage(processMessageUpdate, PROCESS_DELAY_SECONDS * 1000)(oldMessage, index);
+                        delayProcessMessage(processMessageUpdate)(oldMessage, index);
                         index++;
                     }
                 }
 
             });
 
-        delayProcessMessage(resolve, PROCESS_DELAY_SECONDS * 1000)(null, index);
+        delayProcessMessage(resolve)(null, index);
 
     });
 
 }
 
 
-function delayProcessMessage(fn, delay) {
-    return (message, i) => setTimeout(() => fn(message), i * delay);
+function delayProcessMessage(fn) {
+    return (message, i) => setTimeout(() => fn(message), i * PROCESS_DELAY_SECONDS * 1000);
 }
 
 
 async function processNewMessage(message) {
 
-    let messageDetails = null;
     try {
-        messageDetails = await fetchMessageDetails(message);
-    } catch (e) {
-        return logFailedDetailsFetch(e);
-    }
 
-    saveMessageDetailsToFile(messageDetails);
-    await saveMessageDetailsToDatabase(messageDetails);
+        const messageDetails = await fetchMessageDetails(message);
 
-    let imageData = null;
-    if (messageDetails.messageImage) {
+        saveMessageDetailsToFile(messageDetails);
+        await saveMessageDetailsToDatabase(messageDetails);
 
-        try {
-            imageData = await fetchImage(messageDetails);
-        } catch (e) {
-            return logFailedImageFetch(e);
-        }
-
-        try {
+        if (messageDetails.messageImage) {
+            const imageData = await fetchImage(messageDetails);
             await saveImageToFile(messageDetails, imageData);
-        } catch (e) {
-            return logFailedImageFileSave(e);
-        }
-
-        try {
             await saveImageToS3(messageDetails, imageData);
-        } catch (e) {
-            return logFailedImageS3Save(e);
         }
 
-    }
-
-    if (MAX_QUEUE_SIZE > 0) {
-        enqueueNewMessage(messageDetails);
-        if (messageDetails.responses.length > 0) {
-            enqueueResponseUpdate(messageDetails);
+        if (MAX_QUEUE_SIZE > 0) {
+            enqueueNewMessage(messageDetails);
+            if (messageDetails.responses.length > 0) {
+                enqueueResponseUpdate(messageDetails);
+            }
         }
+
+    } catch (e) {
+        return logFailedProcessNewMessage(e);
     }
 
 }
@@ -347,17 +295,23 @@ async function processNewMessage(message) {
 
 async function processMessageUpdate(oldMessage) {
 
-    const messageDetails = await fetchMessageDetails(oldMessage);
+    try {
 
-    saveMessageDetailsToFile(messageDetails);
-    await saveMessageDetailsToDatabase(messageDetails);
+        const messageDetails = await fetchMessageDetails(oldMessage);
 
-    if (oldMessage.responses.length < messageDetails.responses.length) {
-        const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
-        logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
-        if (MAX_QUEUE_SIZE > 0) {
-            enqueueResponseUpdate(messageDetails);
+        saveMessageDetailsToFile(messageDetails);
+        await saveMessageDetailsToDatabase(messageDetails);
+
+        if (oldMessage.responses.length < messageDetails.responses.length) {
+            const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
+            logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
+            if (MAX_QUEUE_SIZE > 0) {
+                enqueueResponseUpdate(messageDetails);
+            }
         }
+
+    } catch (e) {
+        return logFailedProcessMessageUpdate(e);
     }
 
 }
@@ -367,35 +321,16 @@ async function fetchMessageDetails(message) {
 
     logger.info(`Fetching details for message "${message.id}"`);
 
-    return new Promise((resolve, reject) => {
+    const { data } = await axios.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`);
 
-        const req = https.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`, res => {
+    // Get the messages that are currently available
+    const messageDetails = data;
+    if (messageDetails && messageDetails.length > 0) {
+        logger.info(`Received details for message "${message.id}"`);
+        return messageDetails[0];
+    }
 
-            if (res.statusCode !== 200) {
-                return reject(res.statusMessage);
-            }
-
-            let body = '';
-
-            res.on('data', d => body += d);
-            res.on('end', () => {
-
-                // Get the messages that are currently available
-                const messageDetails = JSON.parse(body);
-                if (messageDetails && messageDetails.length > 0) {
-                    logger.info(`Received details for message "${message.id}"`);
-                    resolve(messageDetails[0]);
-                }
-
-                return reject(`No details for message "${message.id}"`);
-
-            });
-
-        });
-        req.on('error', e => reject(e.message));
-        req.end();
-
-    });
+    return Promise.reject(`No details for message "${message.id}"`)
 
 }
 
@@ -418,30 +353,13 @@ async function saveMessageDetailsToDatabase(message) {
 
 async function fetchImage(messageDetails) {
 
-    logger.info(`Fetching image of message "${messageDetails.id}"`)
+    logger.info(`Fetching image of message "${messageDetails.id}"`);
 
-    return new Promise((resolve, reject) => {
-
-        const imageId = messageDetails.messageImage.id;
-        const req = https.get(`${baseUrl}/IWImageLoader?mediaId=${imageId}`, (res) => {
-
-            if (res.statusCode !== 200) {
-                return reject(res.statusMessage);
-            }
-
-            const imageData = [];
-
-            res.on('data', d => imageData.push(d));
-            res.on('end', () => {
-                logger.info(`Received image of message "${messageDetails.id}"`);
-                resolve(Buffer.concat(imageData));
-            });
-
-        });
-        req.on('error', () => reject(e.message));
-        req.end();
-
-    });
+    const { data } = await axios.get(
+        `${baseUrl}/IWImageLoader?mediaId=${messageDetails.messageImage.id}`,
+        { responseType: 'arraybuffer' }
+    );
+    return data;
 
 }
 
@@ -519,48 +437,32 @@ async function archiveOldMessages(pastMessages, currentMessages) {
 
     });
 
+    logger.info('Archiving old messages finished.');
+
 }
 
 
-function logFailedDataFetch(errorMessage) {
-    const text = `Fetching data failed: ${errorMessage}`;
+function logFailedProcessNewMessage(errorMessage) {
+    const text = `Processing new message failed: ${errorMessage}`;
+    logger.error(text)
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    }
+}
+
+
+function logFailedProcessMessageUpdate(errorMessage) {
+    const text = `Processing message update failed: ${errorMessage}`;
+    logger.error(text)
+    if (LOG_TO_SLACK_CHANNEL) {
+        sendToSlackChannel(text);
+    }
+}
+
+
+function logError(error) {
+    const text = `ERROR: ${error}`;
     logger.error(text);
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedDetailsFetch(errorMessage) {
-    const text = `Fetching details failed: ${errorMessage}`;
-    logger.error(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedImageFetch(errorMessage) {
-    const text = `Fetching image failed: ${errorMessage}`;
-    logger.error(text);
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedImageFileSave(errorMessage) {
-    const text = `Saving image to file failed: ${errorMessage}`;
-    logger.error(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedImageS3Save(errorMessage) {
-    const text = `Saving image to S3 failed: ${errorMessage}`;
-    logger.error(text)
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
@@ -569,7 +471,7 @@ function logFailedImageS3Save(errorMessage) {
 
 function logNewMessages(messages) {
     const text = `Found new messages: ${messages.length}`;
-    logger.info(text)
+    logger.info(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
     }
@@ -577,28 +479,9 @@ function logNewMessages(messages) {
 
 
 function sendToSlackChannel(message) {
-
     const text = `${tenantKey}: ${message}`;
     const strData = JSON.stringify({ text });
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': strData.length
-        }
-    };
-    const req = https.request(
-        SLACK_WEBHOOK_URL,
-        options,
-        res => {
-            if (res.statusCode !== 200) {
-                logger.error(`Failed to send message to Slack channel: ${text}`)
-            }
-        }
-    );
-
-    req.on('error', error => console.error(error));
-    req.write(strData);
-    req.end();
-
+    axios
+        .post(SLACK_WEBHOOK_URL, strData)
+        .catch(e => logger.error(e));
 }

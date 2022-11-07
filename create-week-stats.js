@@ -94,7 +94,7 @@ function prepareTenantDirectory() {
 
 function createStatsTweet() {
 
-    const allMessagesText = fs.readFileSync(allMessagesFilename);
+    const allMessagesText = fs.readFileSync(allMessagesFilename, 'utf-8');
     const allMessages = JSON.parse(allMessagesText);
 
     const today = new Date();
