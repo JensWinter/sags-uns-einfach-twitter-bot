@@ -24,8 +24,10 @@ const tenantDir = `${tenantsDir}/${tenantKey}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
-const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
-const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
+const queueTwitterNewMessagesDir = `${tenantDir}/queues/twitter/new_messages`;
+const queueMastodonNewMessagesDir = `${tenantDir}/queues/mastodon/new_messages`;
+const queueTwitterResponseUpdatesDir = `${tenantDir}/queues/twitter/response_updates`;
+const queueMastodonResponseUpdatesDir = `${tenantDir}/queues/mastodon/response_updates`;
 const archiveDir = './archive';
 const tenantArchiveDir = `${archiveDir}/${tenantKey}`;
 const archiveImagesDir = `${tenantArchiveDir}/images`;
@@ -131,13 +133,21 @@ function prepareTenantDirectories() {
         logger.info('Creating messages file.')
         fs.writeFileSync(allMessagesFilename, JSON.stringify([], null, 2));
     }
-    if (!fs.existsSync(queueNewMessagesDir)) {
+    if (!fs.existsSync(queueTwitterNewMessagesDir)) {
         logger.info('Creating new messages queue directory.')
-        fs.mkdirSync(queueNewMessagesDir, { recursive: true });
+        fs.mkdirSync(queueTwitterNewMessagesDir, { recursive: true });
     }
-    if (!fs.existsSync(queueResponseUpdatesDir)) {
-        logger.info('Creating response updates queue directory.')
-        fs.mkdirSync(queueResponseUpdatesDir, { recursive: true });
+    if (!fs.existsSync(queueMastodonNewMessagesDir)) {
+        logger.info('Creating new messages Twitter queue directory.')
+        fs.mkdirSync(queueMastodonNewMessagesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueTwitterResponseUpdatesDir)) {
+        logger.info('Creating response updates Twitter queue directory.')
+        fs.mkdirSync(queueTwitterResponseUpdatesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueMastodonResponseUpdatesDir)) {
+        logger.info('Creating response updates Mastodon queue directory.')
+        fs.mkdirSync(queueMastodonResponseUpdatesDir, { recursive: true });
     }
     if (ARCHIVE_OLD_MESSAGES && !fs.existsSync(archiveMessagesDir)) {
         fs.mkdirSync(archiveMessagesDir, { recursive: true });
@@ -387,23 +397,39 @@ async function saveImageToS3(messageDetails, imageDataBuffer) {
 
 
 function enqueueNewMessage(messageDetails) {
-    const currentQueueSize = fs.readdirSync(queueNewMessagesDir).length;
-    if (currentQueueSize < MAX_QUEUE_SIZE) {
-        logger.info(`Saving message "${messageDetails.id}" into new messages queue`);
-        fs.writeFileSync(`${queueNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    const currentTwitterQueueSize = fs.readdirSync(queueTwitterNewMessagesDir).length;
+    if (currentTwitterQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving message "${messageDetails.id}" into new messages Twitter queue`);
+        fs.writeFileSync(`${queueTwitterNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
-        logger.warn(`Didn't queue new message "${messageDetails.id}". Queue is full!`);
+        logger.warn(`Didn't queue new message "${messageDetails.id}". Twitter queue is full!`);
+    }
+
+    const currentMastodonQueueSize = fs.readdirSync(queueMastodonNewMessagesDir).length;
+    if (currentMastodonQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving message "${messageDetails.id}" into new messages Mastodon queue`);
+        fs.writeFileSync(`${queueMastodonNewMessagesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue new message "${messageDetails.id}". Mastodon queue is full!`);
     }
 }
 
 
 function enqueueResponseUpdate(messageDetails) {
-    const currentQueueSize = fs.readdirSync(queueResponseUpdatesDir).length;
-    if (currentQueueSize < MAX_QUEUE_SIZE) {
-        logger.info(`Saving response update for message "${messageDetails.id}" into response update queue`);
-        fs.writeFileSync(`${queueResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    const currentTwitterQueueSize = fs.readdirSync(queueTwitterResponseUpdatesDir).length;
+    if (currentTwitterQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving response update for message "${messageDetails.id}" into response update Twitter queue`);
+        fs.writeFileSync(`${queueTwitterResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
     } else {
-        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Queue is full!`);
+        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Twitter queue is full!`);
+    }
+
+    const currentMastodonQueueSize = fs.readdirSync(queueMastodonResponseUpdatesDir).length;
+    if (currentMastodonQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving response update for message "${messageDetails.id}" into response update Mastodon queue`);
+        fs.writeFileSync(`${queueMastodonResponseUpdatesDir}/message-${messageDetails.id}.json`, JSON.stringify(messageDetails, null, 2));
+    } else {
+        logger.warn(`Didn't queue response update for message "${messageDetails.id}". Mastodon queue is full!`);
     }
 }
 

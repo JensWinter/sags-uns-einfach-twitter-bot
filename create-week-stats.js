@@ -18,7 +18,8 @@ const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantKey}`;
 const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
-const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
+const queueTwitterStatisticsUpdatesDir = `${tenantDir}/queues/twitter/statistics_updates`;
+const queueMastodonStatisticsUpdatesDir = `${tenantDir}/queues/mastodon/statistics_updates`;
 
 const logger = initLogger();
 
@@ -85,9 +86,13 @@ function prepareTenantDirectory() {
         logger.info('Creating messages file.')
         fs.writeFileSync(allMessagesFilename, JSON.stringify([], null, 2));
     }
-    if (!fs.existsSync(queueStatisticsUpdatesDir)) {
-        logger.info('Creating weekly statistics queue directory.')
-        fs.mkdirSync(queueStatisticsUpdatesDir, { recursive: true });
+    if (!fs.existsSync(queueTwitterStatisticsUpdatesDir)) {
+        logger.info('Creating weekly statistics Twitter queue directory.')
+        fs.mkdirSync(queueTwitterStatisticsUpdatesDir, { recursive: true });
+    }
+    if (!fs.existsSync(queueMastodonStatisticsUpdatesDir)) {
+        logger.info('Creating weekly statistics Mastodon queue directory.')
+        fs.mkdirSync(queueMastodonStatisticsUpdatesDir, { recursive: true });
     }
 }
 
@@ -169,11 +174,20 @@ function getWeekBlockStr(week) {
 
 function enqueueStatisticsUpdate(text, date) {
     const dateStr = dateFns.formatISO(date, { representation: 'date' });
-    const currentQueueSize = fs.readdirSync(queueStatisticsUpdatesDir).length;
-    if (currentQueueSize < MAX_QUEUE_SIZE) {
-        logger.info(`Saving statistics for "${dateStr}" into queue`);
-        fs.writeFileSync(`${queueStatisticsUpdatesDir}/stats-${dateStr}.txt`, text);
+
+    const currentTwitterQueueSize = fs.readdirSync(queueTwitterStatisticsUpdatesDir).length;
+    if (currentTwitterQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving statistics for "${dateStr}" into Twitter queue`);
+        fs.writeFileSync(`${queueTwitterStatisticsUpdatesDir}/stats-${dateStr}.txt`, text);
     } else {
-        logger.warn(`Didn't queue statistics "${messageDetails.id}". Queue is full!`);
+        logger.warn(`Didn't queue statistics "${messageDetails.id}". Twitter queue is full!`);
+    }
+
+    const currentMastodonQueueSize = fs.readdirSync(queueMastodonStatisticsUpdatesDir).length;
+    if (currentMastodonQueueSize < MAX_QUEUE_SIZE) {
+        logger.info(`Saving statistics for "${dateStr}" into Mastodon queue`);
+        fs.writeFileSync(`${queueMastodonStatisticsUpdatesDir}/stats-${dateStr}.txt`, text);
+    } else {
+        logger.warn(`Didn't queue statistics "${messageDetails.id}". Mastodon queue is full!`);
     }
 }

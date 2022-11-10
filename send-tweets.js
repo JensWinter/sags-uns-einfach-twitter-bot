@@ -24,9 +24,9 @@ const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantKey}`;
 const imagesDir = `${tenantDir}/images`;
 const tweetsDir = `${tenantDir}/tweets`;
-const queueNewMessagesDir = `${tenantDir}/queue_new_messages`;
-const queueResponseUpdatesDir = `${tenantDir}/queue_response_updates`;
-const queueStatisticsUpdatesDir = `${tenantDir}/queue_statistics_updates`;
+const queueNewMessagesDir = `${tenantDir}/queues/twitter/new_messages`;
+const queueResponseUpdatesDir = `${tenantDir}/queues/twitter/response_updates`;
+const queueTwitterStatisticsUpdatesDir = `${tenantDir}/queues/twitter/statistics_updates`;
 
 const logger = initLogger();
 const twitterClient = initTwitterClient();
@@ -294,7 +294,7 @@ function removeItemFromResponseUpdatesQueue(filename) {
 async function popAndProcessStatisticsUpdate() {
 
     const itemToProcess = fs
-        .readdirSync(queueStatisticsUpdatesDir)
+        .readdirSync(queueTwitterStatisticsUpdatesDir)
         .filter(f => f.startsWith('stats-') && f.endsWith('.txt'))
         .sort()
         .shift();
@@ -316,19 +316,19 @@ async function popAndProcessStatisticsUpdate() {
 
 
 function loadStatisticsUpdateFromQueue(filename) {
-    return fs.readFileSync(`${queueStatisticsUpdatesDir}/${filename}`, 'utf-8');
+    return fs.readFileSync(`${queueTwitterStatisticsUpdatesDir}/${filename}`, 'utf-8');
 }
 
 
 async function processStatisticsUpdate(text) {
-    const sendTweetResult = await sendUpdateTweet(text, false, null, null);
+    const sendTweetResult = await sendUpdateTweet(text, false, null);
     saveStatisticsTweet(text, sendTweetResult);
 }
 
 
 function removeItemFromStatisticsUpdatesQueue(filename) {
     logger.info(`Removing item "${filename}" from statistics updates queue`)
-    fs.unlinkSync(`${queueStatisticsUpdatesDir}/${filename}`)
+    fs.unlinkSync(`${queueTwitterStatisticsUpdatesDir}/${filename}`)
 }
 
 
