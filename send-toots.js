@@ -3,8 +3,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
-const TwitterClient = require('twitter-api-client').TwitterClient;
-const { getMessageLocation } = require('./get-location');
+const Mastodon = require('mastodon-api');
 
 
 require('dotenv').config();
@@ -23,13 +22,13 @@ const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenant.providers.sue.id}`;
 const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantKey}`;
 const imagesDir = `${tenantDir}/images`;
-const tweetsDir = `${tenantDir}/tweets`;
-const queueNewMessagesDir = `${tenantDir}/queues/twitter/new_messages`;
-const queueResponseUpdatesDir = `${tenantDir}/queues/twitter/response_updates`;
-const queueTwitterStatisticsUpdatesDir = `${tenantDir}/queues/twitter/statistics_updates`;
+const tootsDir = `${tenantDir}/toots`;
+const queueNewMessagesDir = `${tenantDir}/queues/mastodon/new_messages`;
+const queueResponseUpdatesDir = `${tenantDir}/queues/mastodon/response_updates`;
+const queueStatisticsUpdatesDir = `${tenantDir}/queues/mastodon/statistics_updates`;
 
 const logger = initLogger();
-const twitterClient = initTwitterClient();
+const mastodonClient = initMastodonClient();
 
 const LOG_TO_SLACK_CHANNEL = tenant.config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
@@ -92,7 +91,7 @@ function initLogger() {
             winston.format.json()
         ),
         transports: [
-            new winston.transports.File({ filename: `${tenantDir}/output-send-tweets.log` }),
+            new winston.transports.File({ filename: `${tenantDir}/output-send-toots.log` }),
             new winston.transports.Console({ format: winston.format.simple() })
         ]
     });
@@ -101,19 +100,17 @@ function initLogger() {
 
 
 function prepareTenantDirectory() {
-    if (!fs.existsSync(tweetsDir)) {
-        logger.info('Creating tweets directory.');
-        fs.mkdirSync(tweetsDir, { recursive: true });
+    if (!fs.existsSync(tootsDir)) {
+        logger.info('Creating toots directory.');
+        fs.mkdirSync(tootsDir, { recursive: true });
     }
 }
 
 
-function initTwitterClient() {
-    return new TwitterClient({
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+function initMastodonClient() {
+    return new Mastodon({
+        access_token: process.env.MASTODON_ACCESS_TOKEN,
+        api_url: process.env.MASTODON_API_URL
     });
 }
 
@@ -128,11 +125,11 @@ async function popAndProcessNewMessage() {
 
     if (itemToProcess) {
 
-        logger.info(`Found new message to tweet: ${itemToProcess}`);
+        logger.info(`Found new message to toot: ${itemToProcess}`);
 
         const message = loadNewMessageFromQueue(itemToProcess);
-        const imageData = message.messageImage ? loadImage(message) : null;
-        await processNewMessage(message, imageData);
+        const imageFilename = message.messageImage ? getImageFilename(message) : null;
+        await processNewMessage(message, imageFilename);
 
         removeItemFromNewMessagesQueue(itemToProcess);
 
@@ -148,20 +145,18 @@ function loadNewMessageFromQueue(filename) {
 }
 
 
-function loadImage(messageDetails) {
-    logger.info(`Loading image of message "${messageDetails.id}"`);
+function getImageFilename(messageDetails) {
     const mimeType = messageDetails.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
-    return fs.readFileSync(filename);
+    return `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
 }
 
 
-async function processNewMessage(message, imageData) {
+async function processNewMessage(message, imageFilename) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const subject = message.subject.slice(0, imageData ? 224 : 234);
+    const subject = message.subject.slice(0, imageFilename ? 444 : 463);
     const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
 
     let status = `${date}:
@@ -169,59 +164,49 @@ async function processNewMessage(message, imageData) {
 ${subject}
 ${url}`;
 
-    const location = getMessageLocation(message);
-
-    if (imageData) {
-
-        const mediaId = await uploadImage(imageData);
+    if (imageFilename) {
+        const mediaId = await uploadImage(imageFilename);
         status += `
 Bild: LH Magdeburg`;
-        const sendTweetResult = await sendNewMessageTweet(status, location, mediaId);
-        saveMessageTweet(message, sendTweetResult);
-
+        const sendTootResult = await sendNewMessageToot(status, mediaId);
+        saveMessageToot(message, sendTootResult);
     } else {
-        const sendTweetResult = await sendNewMessageTweet(status, location, null);
-        saveMessageTweet(message, sendTweetResult);
+        const sendTootResult = await sendNewMessageToot(status, null);
+        saveMessageToot(message, sendTootResult);
     }
 
 }
 
 
-async function uploadImage(imageDataBuffer) {
+async function uploadImage(filename) {
 
-    logger.info('Uploading image to Twitter')
+    logger.info('Uploading image to Mastodon')
 
-    // noinspection JSCheckFunctionSignatures
-    const base64 = imageDataBuffer.toString('base64');
-    const uploadParams = { media_data: base64 };
-    const uploadResult = await twitterClient.media.mediaUpload(uploadParams);
+    const uploadResult = await mastodonClient.post('media', { file: fs.createReadStream(filename) });
 
-    logger.info('Image successfully sent to Twitter');
+    logger.info('Image successfully sent to Mastodon');
 
-    return uploadResult.media_id_string;
+    return uploadResult.data.id;
 
 }
 
 
-async function sendNewMessageTweet(status, location, mediaId) {
+async function sendNewMessageToot(status, mediaId) {
 
-    logger.info('Sending tweet...');
+    logger.info('Sending toot...');
     logger.info(`...with status "${status}"`);
     if (mediaId) {
         logger.info(`...with media "${mediaId}"`);
     }
 
-    const display_coordinates = !!location && location.length === 2;
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
+    const parameters = { status, media_ids: [mediaId] };
+    const sendResult = await mastodonClient.post('statuses', parameters);
+
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
     }
 
-    const parameters = display_coordinates
-        ? { status, display_coordinates, lat: location[1], long: location[0], media_ids: mediaId }
-        : { status, media_ids: mediaId };
-    const sendResult = await twitterClient.tweets.statusesUpdate(parameters);
-
-    logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`);
+    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
     return sendResult;
 
@@ -244,15 +229,15 @@ async function popAndProcessResponseUpdate() {
 
     if (itemToProcess) {
 
-        logger.info(`Found response update to tweet: ${itemToProcess}`);
+        logger.info(`Found response update to toot: ${itemToProcess}`);
 
         const message = loadResponseUpdateFromQueue(itemToProcess);
-        const tweets = loadTweets(message);
-        const lastTweet = tweets.pop();
-        if (lastTweet) {
-            await processResponseUpdate(message, lastTweet.id_str);
+        const toots = loadToots(message);
+        const lastToot = toots.pop();
+        if (lastToot) {
+            await processResponseUpdate(message, lastToot.data.id);
         } else {
-            logger.warn(`Didn't send response update tweet for message "${itemToProcess}", because origin tweet couldn't be found.`);
+            logger.warn(`Didn't send response update toot for message "${itemToProcess}", because origin toot couldn't be found.`);
         }
 
         removeItemFromResponseUpdatesQueue(itemToProcess);
@@ -274,13 +259,12 @@ async function processResponseUpdate(message, replyToId) {
     const response = message.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
-    const responseText = response.message.length > 265 ? `${response.message.slice(0, 260)}[...]` : response.message;
+    const responseText = response.message.length > 485 ? `${response.message.slice(0, 480)}[...]` : response.message;
     let status = `${date}:
 
 "${responseText}"`;
-    const location = getMessageLocation(message);
-    const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
-    saveMessageTweet(message, sendTweetResult);
+    const sendTootResult = await sendUpdateToot(status, replyToId);
+    saveMessageToot(message, sendTootResult);
 
 }
 
@@ -294,14 +278,14 @@ function removeItemFromResponseUpdatesQueue(filename) {
 async function popAndProcessStatisticsUpdate() {
 
     const itemToProcess = fs
-        .readdirSync(queueTwitterStatisticsUpdatesDir)
+        .readdirSync(queueStatisticsUpdatesDir)
         .filter(f => f.startsWith('stats-') && f.endsWith('.txt'))
         .sort()
         .shift();
 
     if (itemToProcess) {
 
-        logger.info(`Found statistics update to tweet: ${itemToProcess}`);
+        logger.info(`Found statistics update to toot: ${itemToProcess}`);
 
         const text = loadStatisticsUpdateFromQueue(itemToProcess);
         await processStatisticsUpdate(text);
@@ -316,62 +300,77 @@ async function popAndProcessStatisticsUpdate() {
 
 
 function loadStatisticsUpdateFromQueue(filename) {
-    return fs.readFileSync(`${queueTwitterStatisticsUpdatesDir}/${filename}`, 'utf-8');
+    return fs.readFileSync(`${queueStatisticsUpdatesDir}/${filename}`, 'utf-8');
 }
 
 
 async function processStatisticsUpdate(text) {
-    const sendTweetResult = await sendUpdateTweet(text, false, null);
-    saveStatisticsTweet(text, sendTweetResult);
+    const sendTootResult = await sendWeekStatsToot(text);
+    saveStatisticsToot(text, sendTootResult);
 }
 
 
 function removeItemFromStatisticsUpdatesQueue(filename) {
     logger.info(`Removing item "${filename}" from statistics updates queue`)
-    fs.unlinkSync(`${queueTwitterStatisticsUpdatesDir}/${filename}`)
+    fs.unlinkSync(`${queueStatisticsUpdatesDir}/${filename}`)
 }
 
 
-function loadTweets(message) {
-    const filename = `${tweetsDir}/tweets-${message.id}.json`;
+function loadToots(message) {
+    const filename = `${tootsDir}/toots-${message.id}.json`;
     return fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
 }
 
 
-function saveMessageTweet(message, tweetResult) {
-    const filename = `${tweetsDir}/tweets-${message.id}.json`;
-    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
-    tweets.push(tweetResult);
-    const tweetResultStr = JSON.stringify(tweets, null, 2);
-    fs.writeFileSync(filename, tweetResultStr);
+function saveMessageToot(message, tootResult) {
+    const filename = `${tootsDir}/toots-${message.id}.json`;
+    const toots = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+    toots.push(tootResult);
+    const tootResultStr = JSON.stringify(toots, null, 2);
+    fs.writeFileSync(filename, tootResultStr);
 }
 
 
-function saveStatisticsTweet(text, tweetResult) {
-    const filename = `${tweetsDir}/weekly-stats.json`;
-    const tweets = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
-    tweets.push(tweetResult);
-    const tweetResultStr = JSON.stringify(tweets, null, 2);
-    fs.writeFileSync(filename, tweetResultStr);
+function saveStatisticsToot(text, tootResult) {
+    const filename = `${tootsDir}/weekly-stats.json`;
+    const toots = fs.existsSync(filename) ? JSON.parse(fs.readFileSync(filename, 'utf-8')) : [];
+    toots.push(tootResult);
+    const tootResultStr = JSON.stringify(toots, null, 2);
+    fs.writeFileSync(filename, tootResultStr);
 }
 
 
-async function sendUpdateTweet(status, location, replyToId) {
+async function sendUpdateToot(status, replyToId) {
 
-    logger.info('Sending tweet...');
+    logger.info('Sending toot...');
     logger.info(`...with status "${status}"`)
 
-    const display_coordinates = !!location && location.length === 2;
-    if (display_coordinates) {
-        logger.info(`...with coordinate lat="${location[1]}" long="${location[0]}"`);
+    const parameters = { status, in_reply_to_id: replyToId };
+    const sendResult = await mastodonClient.post('statuses', parameters);
+
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
     }
 
-    const parameters = display_coordinates
-        ? { status, display_coordinates, lat: location[1], long: location[0], in_reply_to_status_id: replyToId }
-        : { status, in_reply_to_status_id: replyToId };
-    const sendResult = await twitterClient.tweets.statusesUpdate(parameters);
+    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
-    logger.info(`Tweet successfully sent. id = ${sendResult.id_str}`);
+    return sendResult;
+
+}
+
+
+async function sendWeekStatsToot(status) {
+
+    logger.info('Sending toot...');
+    logger.info(`...with status "${status}"`)
+
+    const sendResult = await mastodonClient.post('statuses', { status });
+
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
+    }
+
+    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
     return sendResult;
 
