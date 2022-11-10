@@ -156,7 +156,7 @@ async function processNewMessage(message, imageFilename) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const subject = message.subject.slice(0, imageFilename ? 224 : 234);
+    const subject = message.subject.slice(0, imageFilename ? 444 : 463);
     const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
 
     let status = `${date}:
@@ -202,7 +202,11 @@ async function sendNewMessageToot(status, mediaId) {
     const parameters = { status, media_ids: [mediaId] };
     const sendResult = await mastodonClient.post('statuses', parameters);
 
-    logger.info(`Toot successfully sent. id = ${sendResult.id}`);
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
+    }
+
+    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
     return sendResult;
 
@@ -255,7 +259,7 @@ async function processResponseUpdate(message, replyToId) {
     const response = message.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
-    const responseText = response.message.length > 265 ? `${response.message.slice(0, 260)}[...]` : response.message;
+    const responseText = response.message.length > 485 ? `${response.message.slice(0, 480)}[...]` : response.message;
     let status = `${date}:
 
 "${responseText}"`;
@@ -344,6 +348,10 @@ async function sendUpdateToot(status, replyToId) {
     const parameters = { status, in_reply_to_id: replyToId };
     const sendResult = await mastodonClient.post('statuses', parameters);
 
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
+    }
+
     logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
     return sendResult;
@@ -357,6 +365,10 @@ async function sendWeekStatsToot(status) {
     logger.info(`...with status "${status}"`)
 
     const sendResult = await mastodonClient.post('statuses', { status });
+
+    if (sendResult.data.error) {
+        throw new Error(sendResult.data.error);
+    }
 
     logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
 
