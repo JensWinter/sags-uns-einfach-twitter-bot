@@ -112,7 +112,12 @@ function initLogger() {
             winston.format.json()
         ),
         transports: [
-            new winston.transports.File({ filename: `${tenantDir}/output-fetch-messages.log` }),
+            new winston.transports.File({
+                filename: `${tenantDir}/logs/output-fetch-messages.log`,
+                maxFiles: 10,
+                maxsize: 100000,
+                tailable: true
+            }),
             new winston.transports.Console({ format: winston.format.simple() })
         ]
     });
