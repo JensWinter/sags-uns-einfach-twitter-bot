@@ -91,7 +91,12 @@ function initLogger() {
             winston.format.json()
         ),
         transports: [
-            new winston.transports.File({ filename: `${tenantDir}/output-send-toots.log` }),
+            new winston.transports.File({
+                filename: `${tenantDir}/output-send-toots.log`,
+                maxFiles: 10,
+                maxsize: 100000,
+                tailable: true
+            }),
             new winston.transports.Console({ format: winston.format.simple() })
         ]
     });
