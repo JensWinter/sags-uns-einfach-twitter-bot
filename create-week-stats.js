@@ -70,7 +70,7 @@ function initLogger() {
         ),
         transports: [
             new winston.transports.File({
-                filename: `${tenantDir}/output-create-stats.log`,
+                filename: `${tenantDir}/logs/output-create-stats.log`,
                 maxFiles: 10,
                 maxsize: 100000,
                 tailable: true

@@ -93,7 +93,7 @@ function initLogger() {
         ),
         transports: [
             new winston.transports.File({
-                filename: `${tenantDir}/output-send-tweets.log`,
+                filename: `${tenantDir}/logs/output-send-tweets.log`,
                 maxFiles: 10,
                 maxsize: 100000,
                 tailable: true

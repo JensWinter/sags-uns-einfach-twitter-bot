@@ -113,7 +113,7 @@ function initLogger() {
         ),
         transports: [
             new winston.transports.File({
-                filename: `${tenantDir}/output-fetch-messages.log`,
+                filename: `${tenantDir}/logs/output-fetch-messages.log`,
                 maxFiles: 10,
                 maxsize: 100000,
                 tailable: true
