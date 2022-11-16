@@ -10,21 +10,21 @@ function initProj4() {
     return proj4;
 }
 
-function getMessageLocation(message) {
+function getMessageLocation(sueMessage) {
 
-    const coordinateSystem = message.messagePosition?.geoCoding?.coordinateSystem;
+    const coordinateSystem = sueMessage.messagePosition?.geoCoding?.coordinateSystem;
     const hasCoordinates = coordinateSystem === 'EPSG:25832' || coordinateSystem === 'EPSG:4326';
     let lat = null;
     let long = null;
     if (hasCoordinates) {
-        const coord = [message.messagePosition.geoCoding.longitude, message.messagePosition.geoCoding.latitude];
+        const coord = [sueMessage.messagePosition.geoCoding.longitude, sueMessage.messagePosition.geoCoding.latitude];
         if (coordinateSystem === 'EPSG:25832') {
             const destinationCoord = proj4('EPSG:25832', 'EPSG:4326', coord);
             lat = destinationCoord[1];
             long = destinationCoord[0];
         } else {
-            lat = message.messagePosition.geoCoding.latitude;
-            long = message.messagePosition.geoCoding.longitude;
+            lat = sueMessage.messagePosition.geoCoding.latitude;
+            long = sueMessage.messagePosition.geoCoding.longitude;
         }
         return [long, lat];
     }

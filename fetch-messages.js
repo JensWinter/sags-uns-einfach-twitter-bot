@@ -16,6 +16,7 @@ if (!tenant) {
 }
 
 const tenantKey = tenant.key;
+const providerKey = tenant.type;
 const baseUrl = `https://include-${tenant.providers.sue.system}.zfinder.de`;
 const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenant.providers.sue.id}`;
 
@@ -209,7 +210,7 @@ async function processNewMessages(pastMessages, newMessages) {
         return logger.info('No new messages to process.');
     }
 
-    logNewMessages(newMessages)
+    logInfo(`Found new messages: ${newMessages.length}`);
     recordNewMessages(pastMessages, newMessages);
 
     await processNewMessagesDelayed(newMessages);
@@ -259,7 +260,7 @@ async function processMessageUpdatesDelayed(messages) {
                 const filepath = `${messagesDir}/message-${message.id}.json`;
                 if (fs.existsSync(filepath)) {
                     const oldMessage = JSON.parse(fs.readFileSync(filepath, 'utf-8'));
-                    if (message.lastUpdated > oldMessage.lastUpdated) {
+                    if (message.lastUpdated > oldMessage.data.lastUpdated) {
                         delayProcessMessage(processMessageUpdate)(oldMessage, index);
                         index++;
                     }
@@ -288,7 +289,7 @@ async function processNewMessage(message) {
         saveMessageDetailsToFile(messageDetails);
         await saveMessageDetailsToDatabase(messageDetails);
 
-        if (messageDetails.messageImage) {
+        if (messageDetails.data.messageImage) {
             const imageData = await fetchImage(messageDetails);
             await saveImageToFile(messageDetails, imageData);
             await saveImageToS3(messageDetails, imageData);
@@ -296,13 +297,13 @@ async function processNewMessage(message) {
 
         if (MAX_QUEUE_SIZE > 0) {
             enqueueNewMessage(messageDetails);
-            if (messageDetails.responses.length > 0) {
+            if (messageDetails.data.responses.length > 0) {
                 enqueueResponseUpdate(messageDetails);
             }
         }
 
     } catch (e) {
-        return logFailedProcessNewMessage(e);
+        logError(`Processing new message failed: ${e}`);
     }
 
 }
@@ -317,8 +318,8 @@ async function processMessageUpdate(oldMessage) {
         saveMessageDetailsToFile(messageDetails);
         await saveMessageDetailsToDatabase(messageDetails);
 
-        if (oldMessage.responses.length < messageDetails.responses.length) {
-            const newResponsesCount = messageDetails.responses.length - oldMessage.responses.length;
+        const newResponsesCount = messageDetails.data.responses.length - oldMessage.data.responses.length;
+        if (newResponsesCount > 0) {
             logger.info(`${newResponsesCount} new response(s) in message "${messageDetails.id}" `);
             if (MAX_QUEUE_SIZE > 0) {
                 enqueueResponseUpdate(messageDetails);
@@ -326,7 +327,7 @@ async function processMessageUpdate(oldMessage) {
         }
 
     } catch (e) {
-        return logFailedProcessMessageUpdate(e);
+        logError(`Processing message update failed: ${e}`);
     }
 
 }
@@ -337,12 +338,16 @@ async function fetchMessageDetails(message) {
     logger.info(`Fetching details for message "${message.id}"`);
 
     const { data } = await axios.get(`${tenantBaseUrl}?format=json&action=detail&id=${message.id}`);
-
-    // Get the messages that are currently available
-    const messageDetails = data;
-    if (messageDetails && messageDetails.length > 0) {
+    if (data && data.length > 0) {
         logger.info(`Received details for message "${message.id}"`);
-        return messageDetails[0];
+        const messageDetails = data[0];
+        return {
+            id: `${messageDetails.id}`,
+            tenantKey,
+            providerKey,
+            location: getMessageLocation(messageDetails),
+            data: messageDetails
+        };
     }
 
     return Promise.reject(`No details for message "${message.id}"`)
@@ -360,9 +365,11 @@ function saveMessageDetailsToFile(message) {
 
 async function saveMessageDetailsToDatabase(message) {
     logger.info(`Saving details for message "${message.id}" to database`);
-    const location = getMessageLocation(message);
-    const doc = { ...message, tenantKey, location };
-    await messagesCollection.replaceOne({ id: message.id }, doc, { upsert: true })
+    await messagesCollection.replaceOne(
+        { id: message.id, tenantKey, providerKey },
+        message,
+        { upsert: true }
+    )
 }
 
 
@@ -371,7 +378,7 @@ async function fetchImage(messageDetails) {
     logger.info(`Fetching image of message "${messageDetails.id}"`);
 
     const { data } = await axios.get(
-        `${baseUrl}/IWImageLoader?mediaId=${messageDetails.messageImage.id}`,
+        `${baseUrl}/IWImageLoader?mediaId=${messageDetails.data.messageImage.id}`,
         { responseType: 'arraybuffer' }
     );
     return data;
@@ -381,18 +388,18 @@ async function fetchImage(messageDetails) {
 
 function saveImageToFile(messageDetails, imageDataBuffer) {
     logger.info(`Saving image of message "${messageDetails.id}" to file`);
-    const mimeType = messageDetails.messageImage.mimeType;
+    const mimeType = messageDetails.data.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.data.messageImage.id}${fileExtension}`;
     fs.writeFileSync(filename, imageDataBuffer);
 }
 
 
 async function saveImageToS3(messageDetails, imageDataBuffer) {
     logger.info(`Saving image of message "${messageDetails.id}" to S3`);
-    const mimeType = messageDetails.messageImage.mimeType;
+    const mimeType = messageDetails.data.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    const filename = `${messageDetails.id}-${messageDetails.data.messageImage.id}${fileExtension}`;
     return s3.upload({
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: `tenants/${tenantKey}/images/${filename}`,
@@ -473,26 +480,7 @@ async function archiveOldMessages(pastMessages, currentMessages) {
 }
 
 
-function logFailedProcessNewMessage(errorMessage) {
-    const text = `Processing new message failed: ${errorMessage}`;
-    logger.error(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logFailedProcessMessageUpdate(errorMessage) {
-    const text = `Processing message update failed: ${errorMessage}`;
-    logger.error(text)
-    if (LOG_TO_SLACK_CHANNEL) {
-        sendToSlackChannel(text);
-    }
-}
-
-
-function logError(error) {
-    const text = `ERROR: ${error}`;
+function logError(text) {
     logger.error(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
@@ -500,8 +488,7 @@ function logError(error) {
 }
 
 
-function logNewMessages(messages) {
-    const text = `Found new messages: ${messages.length}`;
+function logInfo(text) {
     logger.info(text);
     if (LOG_TO_SLACK_CHANNEL) {
         sendToSlackChannel(text);
