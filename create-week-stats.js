@@ -16,7 +16,7 @@ if (!tenant) {
 const tenantKey = tenant.key;
 const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantKey}`;
-const messagesDir = `${tenantDir}/messages`;
+const messagesDir = `${tenantDir}/messages-migrated`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const queueTwitterStatisticsUpdatesDir = `${tenantDir}/queues/twitter/statistics_updates`;
 const queueMastodonStatisticsUpdatesDir = `${tenantDir}/queues/mastodon/statistics_updates`;
