@@ -15,8 +15,10 @@ function migrate(rootDir) {
             fs.mkdirSync(`${rootDir}/${tenant}/messages-migrated`);
         }
 
-        const allMessagesTxt = fs.readFileSync(`${rootDir}/${tenant}/messages/all-messages.json`, 'utf-8');
-        fs.writeFileSync(`${rootDir}/${tenant}/messages-migrated/all-messages.json`, allMessagesTxt, 'utf-8');
+        if (fs.existsSync(`${rootDir}/${tenant}/messages/all-messages.json`)) {
+            const allMessagesTxt = fs.readFileSync(`${rootDir}/${tenant}/messages/all-messages.json`, 'utf-8');
+            fs.writeFileSync(`${rootDir}/${tenant}/messages-migrated/all-messages.json`, allMessagesTxt, 'utf-8');
+        }
 
         const messageFilenames = fs.readdirSync(`${rootDir}/${tenant}/messages`).filter(filename => filename.startsWith('message-') && filename.endsWith('.json'));
         for (const messageFilename of messageFilenames) {
