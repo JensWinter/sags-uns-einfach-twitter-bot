@@ -22,7 +22,7 @@ const tenantBaseUrl = `${baseUrl}/mobileportalpms/${tenant.providers.sue.id}`;
 
 const tenantsDir = './tenants';
 const tenantDir = `${tenantsDir}/${tenantKey}`;
-const messagesDir = `${tenantDir}/messages-migrated`;
+const messagesDir = `${tenantDir}/messages`;
 const allMessagesFilename = `${messagesDir}/all-messages.json`;
 const imagesDir = `${tenantDir}/images`;
 const queueTwitterNewMessagesDir = `${tenantDir}/queues/twitter/new_messages`;
@@ -32,7 +32,7 @@ const queueMastodonResponseUpdatesDir = `${tenantDir}/queues/mastodon/response_u
 const archiveDir = './archive';
 const tenantArchiveDir = `${archiveDir}/${tenantKey}`;
 const archiveImagesDir = `${tenantArchiveDir}/images`;
-const archiveMessagesDir = `${tenantArchiveDir}/messages-migrated`;
+const archiveMessagesDir = `${tenantArchiveDir}/messages`;
 
 const logger = initLogger();
 
