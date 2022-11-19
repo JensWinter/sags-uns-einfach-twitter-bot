@@ -133,7 +133,7 @@ async function popAndProcessNewMessage() {
         logger.info(`Found new message to toot: ${itemToProcess}`);
 
         const message = loadNewMessageFromQueue(itemToProcess);
-        const imageFilename = message.messageImage ? getImageFilename(message) : null;
+        const imageFilename = message.data.messageImage ? getImageFilename(message) : null;
         await processNewMessage(message, imageFilename);
 
         removeItemFromNewMessagesQueue(itemToProcess);
@@ -151,17 +151,17 @@ function loadNewMessageFromQueue(filename) {
 
 
 function getImageFilename(messageDetails) {
-    const mimeType = messageDetails.messageImage.mimeType;
+    const mimeType = messageDetails.data.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    return `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    return `${imagesDir}/${messageDetails.id}-${messageDetails.data.messageImage.id}${fileExtension}`;
 }
 
 
 async function processNewMessage(message, imageFilename) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const subject = message.subject.slice(0, imageFilename ? 444 : 463);
+    const date = new Date(message.data.createdDate).toLocaleDateString('de-DE', localeOptions);
+    const subject = message.data.subject.slice(0, imageFilename ? 444 : 463);
     const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
 
     let status = `${date}:
@@ -261,7 +261,7 @@ function loadResponseUpdateFromQueue(filename) {
 
 async function processResponseUpdate(message, replyToId) {
 
-    const response = message.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
+    const response = message.data.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
     const responseText = response.message.length > 485 ? `${response.message.slice(0, 480)}[...]` : response.message;

@@ -136,7 +136,7 @@ async function popAndProcessNewMessage() {
         logger.info(`Found new message to tweet: ${itemToProcess}`);
 
         const message = loadNewMessageFromQueue(itemToProcess);
-        const imageData = message.messageImage ? loadImage(message) : null;
+        const imageData = message.data.messageImage ? loadImage(message) : null;
         await processNewMessage(message, imageData);
 
         removeItemFromNewMessagesQueue(itemToProcess);
@@ -155,9 +155,9 @@ function loadNewMessageFromQueue(filename) {
 
 function loadImage(messageDetails) {
     logger.info(`Loading image of message "${messageDetails.id}"`);
-    const mimeType = messageDetails.messageImage.mimeType;
+    const mimeType = messageDetails.data.messageImage.mimeType;
     const fileExtension = mimeType === 'image/jpeg' ? '.jpeg' : (mimeType === 'image/png' ? '.png' : '');
-    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.messageImage.id}${fileExtension}`;
+    const filename = `${imagesDir}/${messageDetails.id}-${messageDetails.data.messageImage.id}${fileExtension}`;
     return fs.readFileSync(filename);
 }
 
@@ -165,8 +165,8 @@ function loadImage(messageDetails) {
 async function processNewMessage(message, imageData) {
 
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    const date = new Date(message.createdDate).toLocaleDateString('de-DE', localeOptions);
-    const subject = message.subject.slice(0, imageData ? 224 : 234);
+    const date = new Date(message.data.createdDate).toLocaleDateString('de-DE', localeOptions);
+    const subject = message.data.subject.slice(0, imageData ? 224 : 234);
     const url = `${tenantBaseUrl}#meldungDetail?id=${message.id}`;
 
     let status = `${date}:
@@ -174,7 +174,7 @@ async function processNewMessage(message, imageData) {
 ${subject}
 ${url}`;
 
-    const location = getMessageLocation(message);
+    const location = getMessageLocation(message.data);
 
     if (imageData) {
 
@@ -276,14 +276,14 @@ function loadResponseUpdateFromQueue(filename) {
 
 async function processResponseUpdate(message, replyToId) {
 
-    const response = message.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
+    const response = message.data.responses.sort((a, b) => b.messageDate - a.messageDate)[0];
     const localeOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
     const date = new Date(response.messageDate).toLocaleDateString('de-DE', localeOptions);
     const responseText = response.message.length > 265 ? `${response.message.slice(0, 260)}[...]` : response.message;
     let status = `${date}:
 
 "${responseText}"`;
-    const location = getMessageLocation(message);
+    const location = getMessageLocation(message.data);
     const sendTweetResult = await sendUpdateTweet(status, location, replyToId);
     saveMessageTweet(message, sendTweetResult);
 
