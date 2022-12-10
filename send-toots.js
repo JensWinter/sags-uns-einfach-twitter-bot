@@ -3,7 +3,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const winston = require('winston');
-const Mastodon = require('mastodon-api');
+const { login } = require('masto');
 
 
 require('dotenv').config();
@@ -28,13 +28,15 @@ const queueResponseUpdatesDir = `${tenantDir}/queues/mastodon/response_updates`;
 const queueStatisticsUpdatesDir = `${tenantDir}/queues/mastodon/statistics_updates`;
 
 const logger = initLogger();
-const mastodonClient = initMastodonClient();
+let mastodonClient;
 
 const LOG_TO_SLACK_CHANNEL = tenant.config.logToSlackChannel;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
 
 (async () => {
+
+    mastodonClient = await initMastodonClient();
 
     try {
 
@@ -112,10 +114,10 @@ function prepareTenantDirectory() {
 }
 
 
-function initMastodonClient() {
-    return new Mastodon({
-        access_token: process.env.MASTODON_ACCESS_TOKEN,
-        api_url: process.env.MASTODON_API_URL
+async function initMastodonClient() {
+    return await login({
+        url: process.env.MASTODON_API_URL,
+        accessToken: process.env.MASTODON_ACCESS_TOKEN,
     });
 }
 
@@ -187,11 +189,11 @@ async function uploadImage(filename) {
 
     logger.info('Uploading image to Mastodon')
 
-    const uploadResult = await mastodonClient.post('media', { file: fs.createReadStream(filename) });
+    const attachment = await mastodonClient.mediaAttachments.create({ file: fs.createReadStream(filename) });
 
     logger.info('Image successfully sent to Mastodon');
 
-    return uploadResult.data.id;
+    return attachment.id;
 
 }
 
@@ -204,14 +206,13 @@ async function sendNewMessageToot(status, mediaId) {
         logger.info(`...with media "${mediaId}"`);
     }
 
-    const parameters = { status, media_ids: [mediaId] };
-    const sendResult = await mastodonClient.post('statuses', parameters);
+    const sendResult = await mastodonClient.statuses.create({
+        status,
+        visibility: 'unlisted',
+        mediaIds: mediaId ? [mediaId] : [],
+    });
 
-    if (sendResult.data.error) {
-        throw new Error(sendResult.data.error);
-    }
-
-    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
+    logger.info(`Toot successfully sent. id = ${sendResult.id}`);
 
     return sendResult;
 
@@ -240,7 +241,7 @@ async function popAndProcessResponseUpdate() {
         const toots = loadToots(message);
         const lastToot = toots.pop();
         if (lastToot) {
-            await processResponseUpdate(message, lastToot.data.id);
+            await processResponseUpdate(message, lastToot.id);
         } else {
             logger.warn(`Didn't send response update toot for message "${itemToProcess}", because origin toot couldn't be found.`);
         }
@@ -345,19 +346,18 @@ function saveStatisticsToot(text, tootResult) {
 }
 
 
-async function sendUpdateToot(status, replyToId) {
+async function sendUpdateToot(status, inReplyToId) {
 
     logger.info('Sending toot...');
     logger.info(`...with status "${status}"`)
 
-    const parameters = { status, in_reply_to_id: replyToId };
-    const sendResult = await mastodonClient.post('statuses', parameters);
+    const sendResult = await mastodonClient.statuses.create({
+        status,
+        inReplyToId,
+        visibility: 'unlisted'
+    });
 
-    if (sendResult.data.error) {
-        throw new Error(sendResult.data.error);
-    }
-
-    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
+    logger.info(`Toot successfully sent. id = ${sendResult.id}`);
 
     return sendResult;
 
@@ -369,13 +369,12 @@ async function sendWeekStatsToot(status) {
     logger.info('Sending toot...');
     logger.info(`...with status "${status}"`)
 
-    const sendResult = await mastodonClient.post('statuses', { status });
+    const sendResult = await mastodonClient.statuses.create({
+        status,
+        visibility: 'unlisted'
+    });
 
-    if (sendResult.data.error) {
-        throw new Error(sendResult.data.error);
-    }
-
-    logger.info(`Toot successfully sent. id = ${sendResult.data.id}`);
+    logger.info(`Toot successfully sent. id = ${sendResult.id}`);
 
     return sendResult;
 
