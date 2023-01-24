@@ -185,7 +185,7 @@ function enqueueStatisticsUpdate(text, date) {
         logger.info(`Saving statistics for "${dateStr}" into Twitter queue`);
         fs.writeFileSync(`${queueTwitterStatisticsUpdatesDir}/stats-${dateStr}.txt`, text);
     } else {
-        logger.warn(`Didn't queue statistics "${messageDetails.id}". Twitter queue is full!`);
+        logger.warn(`Didn't queue statistics. Twitter queue is full!`);
     }
 
     const currentMastodonQueueSize = fs.readdirSync(queueMastodonStatisticsUpdatesDir).length;
@@ -193,6 +193,6 @@ function enqueueStatisticsUpdate(text, date) {
         logger.info(`Saving statistics for "${dateStr}" into Mastodon queue`);
         fs.writeFileSync(`${queueMastodonStatisticsUpdatesDir}/stats-${dateStr}.txt`, text);
     } else {
-        logger.warn(`Didn't queue statistics "${messageDetails.id}". Mastodon queue is full!`);
+        logger.warn(`Didn't queue statistics. Mastodon queue is full!`);
     }
 }
